@@ -1,0 +1,47 @@
+﻿@model SewingMaterialsStorage.Models.Manufacturer
+
+@{
+    ViewData["Title"] = "Редактировать производителя";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title"><i class="bi bi-pencil"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="ManufacturerId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="ManufacturerName" class="form-label">Наименование производителя</label>
+                    <input asp-for="ManufacturerName" class="form-control" />
+                    <span asp-validation-for="ManufacturerName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="CountryId" class="control-label">Страна</label>
+                    <select asp-for="CountryId" class="form-control" asp-items="ViewBag.Countries">
+                        <option value="">-- Выберите страну --</option>
+                    </select>
+                    <span asp-validation-for="CountryId" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

@@ -1,0 +1,56 @@
+﻿@model IEnumerable<SewingMaterialsStorage.Models.ViewModels.LowStockReportItem>
+
+@{
+    ViewData["Title"] = "Материалы ниже минимального уровня";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="bi bi-exclamation-triangle"></i> @ViewData["Title"]</h1>
+    <div>
+        <button class="btn btn-success" onclick="window.print()">
+            <i class="bi bi-printer"></i> Печать
+        </button>
+        <a asp-action="Stock" class="btn btn-primary">
+            <i class="bi bi-clipboard-data"></i> К отчету по остаткам
+        </a>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        @if (Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Материал</th>
+                            <th>Тип</th>
+                            <th class="text-end">Текущий остаток</th>
+                            <th class="text-end">Мин. уровень</th>
+                            <th class="text-end">Дефицит</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr class="table-danger">
+                                <td>@item.MaterialName</td>
+                                <td>@item.MaterialType</td>
+                                <td class="text-end">@item.CurrentBalance</td>
+                                <td class="text-end">@item.MinThreshold</td>
+                                <td class="text-end">@item.DeficitAmount</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle"></i> Все материалы в наличии выше минимального уровня
+            </div>
+        }
+    </div>
+</div>

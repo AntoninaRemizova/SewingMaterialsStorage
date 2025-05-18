@@ -1,0 +1,31 @@
+﻿@model SewingMaterialsStorage.Models.Manufacturer
+
+@{
+    ViewData["Title"] = "Подробности о производителе";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title"><i class="bi bi-info-circle"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Наименование:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.ManufacturerName)</dd>
+
+            <dt class="col-sm-3">Страна:</dt>
+            <dd class="col-sm-9">@Html.DisplayFor(model => model.Country.CountryName)</dd>
+        </dl>
+
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Назад к списку
+            </a>
+            <div>
+                <a asp-action="Edit" asp-route-id="@Model.ManufacturerId" class="btn btn-warning">
+                    <i class="bi bi-pencil"></i> Редактировать
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

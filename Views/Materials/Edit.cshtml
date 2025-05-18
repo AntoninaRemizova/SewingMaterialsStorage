@@ -1,0 +1,88 @@
+﻿@model SewingMaterialsStorage.Models.Material
+
+@{
+    ViewData["Title"] = "Редактировать материал";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title"><i class="bi bi-pencil"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="MaterialId" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="MaterialName" class="form-label">Наименование материала</label>
+                    <input asp-for="MaterialName" class="form-control" />
+                    <span asp-validation-for="MaterialName" class="text-danger"></span>
+                </div>
+                <div class="col-md-6">
+                    <label asp-for="Article" class="form-label">Артикул</label>
+                    <input asp-for="Article" class="form-control" />
+                    <span asp-validation-for="Article" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <label asp-for="TypeId" class="form-label">Тип материала</label>
+                    <select asp-for="TypeId" class="form-select">
+                        <option value="">-- Выберите тип --</option>
+                        <option value="1">Ткань</option>
+                        <option value="2">Нитки</option>
+                        <option value="3">Молнии</option>
+                        <option value="4">Пуговицы</option>
+                    </select>
+                    <span asp-validation-for="TypeId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ManufacturerId" class="form-label">Производитель</label>
+                    <select asp-for="ManufacturerId" class="form-select" asp-items="ViewBag.ManufacturerId">
+                        <option value="">-- Выберите производителя --</option>
+                    </select>
+                    <span asp-validation-for="ManufacturerId" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="PricePerUnit" class="form-label">Цена за единицу</label>
+                    <div class="input-group">
+                        <input asp-for="PricePerUnit" class="form-control" />
+                        <span class="input-group-text">₽</span>
+                    </div>
+                    <span asp-validation-for="PricePerUnit" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label asp-for="MinThreshold" class="form-label">Минимальный запас</label>
+                    <input asp-for="MinThreshold" class="form-control" />
+                    <span asp-validation-for="MinThreshold" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Notes" class="form-label">Примечания</label>
+                <textarea asp-for="Notes" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

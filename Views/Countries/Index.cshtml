@@ -1,0 +1,46 @@
+﻿@model IEnumerable<Country>
+
+@{
+    ViewData["Title"] = "Страны";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="bi bi-globe"></i> @ViewData["Title"]</h1>
+    <form asp-action="Import" method="post">
+        <button type="submit" class="btn btn-primary">
+            <i class="bi bi-upload"></i> Импортировать из Excel
+        </button>
+    </form>
+</div>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+}
+
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger">@TempData["ErrorMessage"]</div>
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Название страны</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.CountryName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,70 @@
+/* Основные стили */
+body {
+    background-color: #f8f9fa;
+}
+
+.card {
+    border-radius: 0.5rem;
+    margin-bottom: 1.5rem;
+}
+
+.table th {
+    border-top: none;
+}
+
+/* Навигация */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0,0,0,.1);
+}
+
+/* Кнопки с иконками */
+.btn i {
+    margin-right: 0.3rem;
+}
+
+/* Цветовые статусы */
+.badge-status {
+    padding: 0.35em 0.65em;
+    font-size: 0.75em;
+    font-weight: 700;
+    line-height: 1;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: baseline;
+    border-radius: 0.25rem;
+}
+
+/* Адаптивные таблицы */
+@media (max-width: 768px) {
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+/* Анимации */
+.fade-in {
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* Цветовые круги для цветов материалов */
+.color-circle {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 5px;
+    border: 1px solid #ddd;
+}

@@ -1,0 +1,64 @@
+﻿@model IEnumerable<SewingMaterialsStorage.Models.Material>
+
+@{
+    ViewData["Title"] = "Материалы";
+}
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1><i class="bi bi-box-seam"></i> @ViewData["Title"]</h1>
+    <a asp-action="Create" class="btn btn-success">
+        <i class="bi bi-plus-circle"></i> Добавить материал
+    </a>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="thead-light">
+                    <tr>
+                        <th>Наименование</th>
+                        <th>Артикул</th>
+                        <th>Цена</th>
+                        <th>Тип</th>
+                        <th>Производитель</th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(modelItem => item.MaterialName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Article)</td>
+                            <td>@Html.DisplayFor(modelItem => item.PricePerUnit)</td>
+                            <td>@Html.DisplayFor(modelItem => item.MaterialType.TypeName)</td>
+                            <td>@Html.DisplayFor(modelItem => item.Manufacturer.ManufacturerName)</td>
+                            <td>
+                                <div class="btn-group btn-group-sm" role="group">
+                                    <a asp-action="Details" asp-route-id="@item.MaterialId" class="btn btn-info" title="Подробности">
+                                        <i class="bi bi-info-circle"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@item.MaterialId" class="btn btn-warning" title="Редактировать">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.MaterialId" class="btn btn-danger" title="Удалить">
+                                        <i class="bi bi-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
