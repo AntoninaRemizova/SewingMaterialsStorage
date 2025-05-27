@@ -14,6 +14,7 @@
 <div class="col-md-6">
     <label class="form-label">Длина (см)</label>
     <input asp-for="ZipperLength" type="number" step="1"
-           class="form-control" min="0.1" required>
+           class="form-control" min="1" required
+           placeholder="1">
     <span asp-validation-for="ZipperLength" class="text-danger small"></span>
 </div>

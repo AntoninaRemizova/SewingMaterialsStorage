@@ -40,7 +40,7 @@
                             Цена за единицу (руб) <span class="text-danger">*</span>
                         </label>
                         <input asp-for="PricePerUnit" type="number" class="form-control"
-                               placeholder="0" min="1" step="1">
+                               placeholder="1" min="1" step="1">
                         <span asp-validation-for="PricePerUnit" class="text-danger small"></span>
                     </div>
 
@@ -49,7 +49,7 @@
                             Минимальный запас <span class="text-danger">*</span>
                         </label>
                         <input asp-for="MinThreshold" type="number" class="form-control"
-                               placeholder="0" min="1">
+                               placeholder="1" min="1">
                         <span asp-validation-for="MinThreshold" class="text-danger small"></span>
                     </div>
 

@@ -14,6 +14,7 @@
 
 <div class="col-md-6">
     <label asp-for="ButtonSize" class="form-label">Размер (мм)</label>
-    <input asp-for="ButtonSize" class="form-control" type="number" step="1" min="1" required>
+    <input asp-for="ButtonSize" class="form-control" type="number" step="1" min="1" required
+           placeholder="1">
     <span asp-validation-for="ButtonSize" class="text-danger small"></span>
 </div>

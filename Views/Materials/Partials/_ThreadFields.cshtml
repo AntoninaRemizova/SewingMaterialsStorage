@@ -3,13 +3,15 @@
 <div class="col-md-6">
     <label class="form-label">Толщина (метрическая система)</label>
     <input asp-for="Thickness" type="number" step="1"
-           class="form-control" min="1" required>
+           class="form-control" min="1" required
+           placeholder="1">
     <span asp-validation-for="Thickness" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
     <label class="form-label">Длина в катушке (м)</label>
     <input asp-for="LengthPerSpool" type="number"
-           class="form-control" min="1" required>
+           class="form-control" min="1" required
+           placeholder="1">
     <span asp-validation-for="LengthPerSpool" class="text-danger small"></span>
 </div>
