@@ -3,16 +3,21 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models;
+using SewingMaterialsStorage.ViewModels;
 
 namespace SewingMaterialsStorage.Controllers
 {
     public class MaterialsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<MaterialsController> _logger;
 
-        public MaterialsController(ApplicationDbContext context)
+        public MaterialsController(
+            ApplicationDbContext context,
+            ILogger<MaterialsController> logger) 
         {
             _context = context;
+            _logger = logger; 
         }
 
         // GET: Materials
@@ -51,39 +56,39 @@ namespace SewingMaterialsStorage.Controllers
         public async Task<IActionResult> Create()
         {
             await LoadSelectListsAsync();
-
-            // Добавляем списки всех цветов и составов для чекбоксов
             ViewBag.AllColors = await _context.Colors.ToListAsync();
             ViewBag.AllCompositions = await _context.Compositions.ToListAsync();
-
             return View();
         }
 
         // POST: Materials/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(
-            Material material,
-            int[] selectedColors,
-            int[] selectedCompositions,
-            MaterialFabric fabricDetails,
-            MaterialThread threadDetails,
-            MaterialZipper zipperDetails,
-            MaterialButton buttonDetails)
+        public async Task<IActionResult> Create(CreateMaterialViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
-                using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // Сохранение основного материала
+                    // Создаем основной материал
+                    var material = new Material
+                    {
+                        MaterialName = viewModel.MaterialName,
+                        Article = viewModel.Article,
+                        PricePerUnit = viewModel.PricePerUnit,
+                        MinThreshold = viewModel.MinThreshold,
+                        Notes = viewModel.Notes,
+                        ManufacturerId = viewModel.ManufacturerId,
+                        TypeId = viewModel.TypeId
+                    };
+
                     _context.Add(material);
                     await _context.SaveChangesAsync();
 
-                    // Обработка цветов
-                    if (selectedColors != null && selectedColors.Length > 0)
+                    // Добавляем цвета
+                    if (viewModel.SelectedColors != null)
                     {
-                        foreach (var colorId in selectedColors)
+                        foreach (var colorId in viewModel.SelectedColors)
                         {
                             _context.MaterialColors.Add(new MaterialColor
                             {
@@ -93,10 +98,10 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Обработка составов
-                    if (selectedCompositions != null && selectedCompositions.Length > 0)
+                    // Добавляем составы
+                    if (viewModel.SelectedCompositions != null)
                     {
-                        foreach (var compositionId in selectedCompositions)
+                        foreach (var compositionId in viewModel.SelectedCompositions)
                         {
                             _context.MaterialCompositions.Add(new MaterialComposition
                             {
@@ -106,56 +111,78 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Обработка специфических характеристик
-                    switch (material.TypeId)
+                    // Добавляем специфические данные в зависимости от типа
+                    switch (viewModel.TypeId)
                     {
-                        case 1 when fabricDetails != null:
-                            fabricDetails.MaterialId = material.MaterialId;
-                            _context.MaterialFabrics.Add(fabricDetails);
+                        case 9: // Ткань
+                            if (viewModel.Width.HasValue || viewModel.Density.HasValue)
+                            {
+                                _context.MaterialFabrics.Add(new MaterialFabric
+                                {
+                                    MaterialId = material.MaterialId,
+                                    Width = viewModel.Width.Value,
+                                    Density = viewModel.Density.Value
+                                });
+                            }
                             break;
-                        case 2 when threadDetails != null:
-                            threadDetails.MaterialId = material.MaterialId;
-                            _context.MaterialThreads.Add(threadDetails);
+                        case 10: // Нитки
+                            if (viewModel.Thickness.HasValue || viewModel.LengthPerSpool.HasValue)
+                            {
+                                _context.MaterialThreads.Add(new MaterialThread
+                                {
+                                    MaterialId = material.MaterialId,
+                                    Thickness = viewModel.Thickness.Value,
+                                    LengthPerSpool = viewModel.LengthPerSpool.Value
+                                });
+                            }
                             break;
-                        case 3 when zipperDetails != null:
-                            zipperDetails.MaterialId = material.MaterialId;
-                            _context.MaterialZippers.Add(zipperDetails);
+                        case 11: // Молния
+                            if (!string.IsNullOrEmpty(viewModel.ZipperType) || viewModel.ZipperLength.HasValue)
+                            {
+                                _context.MaterialZippers.Add(new MaterialZipper
+                                {
+                                    MaterialId = material.MaterialId,
+                                    ZipperType = viewModel.ZipperType,
+                                    ZipperLength = viewModel.ZipperLength.Value
+                                });
+                            }
                             break;
-                        case 4 when buttonDetails != null:
-                            buttonDetails.MaterialId = material.MaterialId;
-                            _context.MaterialButtons.Add(buttonDetails);
+                        case 12: // Пуговица
+                            if (!string.IsNullOrEmpty(viewModel.Shape) || viewModel.ButtonSize.HasValue)
+                            {
+                                _context.MaterialButtons.Add(new MaterialButton
+                                {
+                                    MaterialId = material.MaterialId,
+                                    Shape = viewModel.Shape,
+                                    ButtonSize = viewModel.ButtonSize.Value
+                                });
+                            }
                             break;
                     }
 
                     await _context.SaveChangesAsync();
-                    await transaction.CommitAsync();
                     TempData["SuccessMessage"] = "Материал успешно добавлен";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    await transaction.RollbackAsync();
-                    ModelState.AddModelError("", $"Ошибка при сохранении: {ex.Message}");
+                    _logger.LogError(ex, "Ошибка при сохранении материала");
+                    ModelState.AddModelError("", "Произошла ошибка при сохранении. Попробуйте еще раз.");
                 }
             }
 
             await LoadSelectListsAsync();
-            return View(material);
+            ViewBag.AllColors = await _context.Colors.ToListAsync();
+            ViewBag.AllCompositions = await _context.Compositions.ToListAsync();
+            return View(viewModel);
         }
+
 
         private async Task LoadSelectListsAsync()
         {
             ViewBag.Manufacturers = new SelectList(
                 await _context.Manufacturers.ToListAsync(),
                 "ManufacturerId", "ManufacturerName");
-
-            ViewBag.Colors = new SelectList(
-                await _context.Colors.ToListAsync(),
-                "ColorId", "ColorName");
-
-            ViewBag.Compositions = new SelectList(
-                await _context.Compositions.ToListAsync(),
-                "CompositionId", "CompositionName");
 
             ViewBag.MaterialTypes = new SelectList(
                 await _context.MaterialTypes.ToListAsync(),
@@ -178,14 +205,23 @@ namespace SewingMaterialsStorage.Controllers
         [HttpGet]
         public IActionResult GetTypeFields(int typeId)
         {
-            return typeId switch
+            _logger.LogInformation($"GetTypeFields called with typeId: {typeId}");
+            try
             {
-                1 => PartialView("_FabricFields", new MaterialFabric()),
-                2 => PartialView("_ThreadFields", new MaterialThread()),
-                3 => PartialView("_ZipperFields", new MaterialZipper()),
-                4 => PartialView("_ButtonFields", new MaterialButton()),
-                _ => Content("")
-            };
+                return typeId switch
+                {
+                    9 => PartialView("Partials/_FabricFields", new CreateMaterialViewModel()),
+                    10 => PartialView("Partials/_ThreadFields", new CreateMaterialViewModel()),
+                    11 => PartialView("Partials/_ZipperFields", new CreateMaterialViewModel()),
+                    12 => PartialView("Partials/_ButtonFields", new CreateMaterialViewModel()),
+                    _ => Content("")
+                };
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error loading type fields");
+                return Content($"<div class='alert alert-danger'>Error loading fields: {ex.Message}</div>");
+            }
         }
 
         // GET: Materials/Edit/5

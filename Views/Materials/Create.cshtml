@@ -1,4 +1,4 @@
-﻿@model SewingMaterialsStorage.Models.Material
+﻿@model SewingMaterialsStorage.ViewModels.CreateMaterialViewModel
 @{
     ViewData["Title"] = "Добавить материал";
 }
@@ -185,9 +185,14 @@
 </div>
 
 @section Scripts {
+    <!-- Сначала подключаем jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Затем стандартные валидационные скрипты -->
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
+
     <script>
         function filterCheckboxes(containerId, searchText) {
             const container = document.getElementById(containerId);
@@ -214,22 +219,84 @@
         }
 
         $(document).ready(function () {
-            // Динамическая загрузка характеристик
+            // Динамическая загрузка характеристик при изменении типа материала
             $('#typeSelect').change(function () {
                 const typeId = $(this).val();
-                $.get(`/Materials/GetTypeFields?typeId=${typeId}`, function (data) {
-                    $('#dynamicFields').html(data);
-                });
+                console.log('Selected type:', typeId);
+                $('#dynamicFields').empty();
+
+                if (!typeId) return;
+
+                $.get(`/Materials/GetTypeFields?typeId=${typeId}`)
+                    .done(function (data) {
+                        $('#dynamicFields').html(data);
+                        // Переинициализация валидации
+                        var form = $('#materialForm');
+                        form.removeData('validator');
+                        form.removeData('unobtrusiveValidation');
+                        $.validator.unobtrusive.parse(form);
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        console.error('AJAX error:', textStatus, errorThrown);
+                        $('#dynamicFields').html(
+                            '<div class="alert alert-danger">Ошибка загрузки полей.</div>'
+                        );
+                    });
             });
 
-            // Валидация формы
+            // Инициализация при загрузке страницы
+            if ($('#typeSelect').val()) {
+                $('#typeSelect').trigger('change');
+            }
+
+            // Инициализация валидации
             $('#materialForm').validate({
                 rules: {
                     MaterialName: { required: true, minlength: 2 },
-                    PricePerUnit: { required: true, min: 1 },
+                    PricePerUnit: { required: true, min: 0.01 },
                     MinThreshold: { required: true, min: 1 },
                     ManufacturerId: { required: true },
-                    TypeId: { required: true }
+                    TypeId: { required: true },
+                    Width: {
+                        required: function () {
+                            return $('#typeSelect').val() == '9';
+                        }
+                    },
+                    Density: {
+                        required: function () {
+                            return $('#typeSelect').val() == '9';
+                        }
+                    },
+                    Thickness: {
+                        required: function () {
+                            return $('#typeSelect').val() == '10';
+                        }
+                    },
+                    LengthPerSpool: {
+                        required: function () {
+                            return $('#typeSelect').val() == '10';
+                        }
+                    },
+                    ZipperType: {
+                        required: function () {
+                            return $('#typeSelect').val() == '11';
+                        }
+                    },
+                    ZipperLength: {
+                        required: function () {
+                            return $('#typeSelect').val() == '11';
+                        }
+                    },
+                    Shape: {
+                        required: function () {
+                            return $('#typeSelect').val() == '12';
+                        }
+                    },
+                    ButtonSize: {
+                        required: function () {
+                            return $('#typeSelect').val() == '12';
+                        }
+                    }
                 },
                 messages: {
                     MaterialName: {
@@ -238,14 +305,22 @@
                     },
                     PricePerUnit: {
                         required: "Пожалуйста, укажите цену",
-                        min: "Цена должна быть не менее 1 рубля"
+                        min: "Цена должна быть больше 0"
                     },
                     MinThreshold: {
                         required: "Пожалуйста, укажите минимальный запас",
                         min: "Минимальный запас должен быть не менее 1"
                     },
                     ManufacturerId: "Пожалуйста, выберите производителя",
-                    TypeId: "Пожалуйста, выберите тип материала"
+                    TypeId: "Пожалуйста, выберите тип материала",
+                    Width: "Пожалуйста, укажите ширину ткани",
+                    Density: "Пожалуйста, укажите плотность ткани",
+                    Thickness: "Пожалуйста, укажите толщину ниток",
+                    LengthPerSpool: "Пожалуйста, укажите длину ниток в катушке",
+                    ZipperType: "Пожалуйста, выберите тип молнии",
+                    ZipperLength: "Пожалуйста, укажите длину молнии",
+                    Shape: "Пожалуйста, выберите форму пуговицы",
+                    ButtonSize: "Пожалуйста, укажите размер пуговицы"
                 },
                 errorElement: 'span',
                 errorClass: 'text-danger small',

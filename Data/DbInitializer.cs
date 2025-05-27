@@ -1,4 +1,5 @@
-﻿using SewingMaterialsStorage.Services;
+﻿using SewingMaterialsStorage.Models;
+using SewingMaterialsStorage.Services;
 
 namespace SewingMaterialsStorage.Data
 {
@@ -21,6 +22,8 @@ namespace SewingMaterialsStorage.Data
                     context.SaveChanges();
                 }
             }
+
+            
         }
     }
 }

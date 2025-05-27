@@ -1,6 +1,19 @@
-﻿namespace SewingMaterialsStorage.Views.Materials
-{
-    public class _ButtonFields
-    {
-    }
-}
+﻿@model SewingMaterialsStorage.ViewModels.CreateMaterialViewModel
+
+<div class="col-md-6">
+    <label asp-for="Shape" class="form-label">Форма</label>
+    <select asp-for="Shape" class="form-select" required>
+        <option value="">-- Выберите форму --</option>
+        <option>Круглая</option>
+        <option>Квадратная</option>
+        <option>Овальная</option>
+        <option>Фигурная</option>
+    </select>
+    <span asp-validation-for="Shape" class="text-danger small"></span>
+</div>
+
+<div class="col-md-6">
+    <label asp-for="ButtonSize" class="form-label">Размер (мм)</label>
+    <input asp-for="ButtonSize" class="form-control" type="number" step="1" min="1" required>
+    <span asp-validation-for="ButtonSize" class="text-danger small"></span>
+</div>

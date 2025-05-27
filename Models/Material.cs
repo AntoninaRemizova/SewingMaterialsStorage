@@ -1,9 +1,19 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿// Material.cs
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace SewingMaterialsStorage.Models
 {
     public class Material
     {
+        public Material()
+        {
+            Colors = new List<MaterialColor>();
+            Compositions = new List<MaterialComposition>();
+            Supplies = new List<Supply>();
+            Consumptions = new List<Consumption>();
+        }
+
         public int MaterialId { get; set; }
 
         [Required(ErrorMessage = "Введите наименование материала")]
@@ -12,9 +22,9 @@ namespace SewingMaterialsStorage.Models
         [Required(ErrorMessage = "Выберите тип материала")]
         public int TypeId { get; set; }
 
+        [Required(ErrorMessage = "Выберите производителя")]
         public int? ManufacturerId { get; set; }
         public string? Notes { get; set; }
-
         public string? Article { get; set; }
 
         [Required(ErrorMessage = "Введите стоимость материала")]
