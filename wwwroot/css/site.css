@@ -68,3 +68,13 @@ body {
     margin-right: 5px;
     border: 1px solid #ddd;
 }
+
+.form-control:valid, .form-control:invalid {
+    box-shadow: none;
+    border-color: #ced4da; /* Стандартный цвет границы Bootstrap */
+}
+
+.form-control:focus {
+    border-color: #86b7fe; /* Светло-голубой как в Bootstrap */
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25); /* Стандартная тень Bootstrap */
+}

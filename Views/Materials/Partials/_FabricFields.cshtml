@@ -13,3 +13,32 @@
            placeholder="1">
     <span asp-validation-for="Density" class="text-danger small"></span>
 </div>
+
+@if (ViewBag.AllCompositions != null)
+{
+    <div class="col-12 mt-3">
+        <label class="form-label">Состав ткани</label>
+        <div class="d-flex justify-content-between mb-2">
+            <input type="text" class="form-control" placeholder="Поиск состава по названию..."
+                   oninput="filterCheckboxes('fabricCompositionsContainer', this.value)">
+            <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                    onclick="toggleAllCheckboxes('fabricCompositionsContainer', false)">
+                Снять все
+            </button>
+        </div>
+        <div class="form-control" style="height: auto; min-height: 38px; max-height: 200px; overflow-y: auto;"
+             id="fabricCompositionsContainer">
+            @foreach (var composition in ViewBag.AllCompositions as List<Composition>)
+            {
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox"
+                           name="selectedCompositions" value="@composition.CompositionId"
+                           id="fabric-composition-@composition.CompositionId">
+                    <label class="form-check-label" for="fabric-composition-@composition.CompositionId">
+                        @composition.CompositionName
+                    </label>
+                </div>
+            }
+        </div>
+    </div>
+}

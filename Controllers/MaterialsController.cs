@@ -55,9 +55,9 @@ namespace SewingMaterialsStorage.Controllers
         // GET: Materials/Create
         public async Task<IActionResult> Create()
         {
-            await LoadSelectListsAsync();
             ViewBag.AllColors = await _context.Colors.ToListAsync();
             ViewBag.AllCompositions = await _context.Compositions.ToListAsync();
+            await LoadSelectListsAsync();
             return View();
         }
 
@@ -208,12 +208,20 @@ namespace SewingMaterialsStorage.Controllers
             _logger.LogInformation($"GetTypeFields called with typeId: {typeId}");
             try
             {
+                var viewModel = new CreateMaterialViewModel();
+
+                // Для типа "Ткань" загружаем составы
+                if (typeId == 9) // ID типа "Ткань"
+                {
+                    ViewBag.AllCompositions = _context.Compositions.ToList();
+                }
+
                 return typeId switch
                 {
-                    9 => PartialView("Partials/_FabricFields", new CreateMaterialViewModel()),
-                    10 => PartialView("Partials/_ThreadFields", new CreateMaterialViewModel()),
-                    11 => PartialView("Partials/_ZipperFields", new CreateMaterialViewModel()),
-                    12 => PartialView("Partials/_ButtonFields", new CreateMaterialViewModel()),
+                    9 => PartialView("Partials/_FabricFields", viewModel),
+                    10 => PartialView("Partials/_ThreadFields", viewModel),
+                    11 => PartialView("Partials/_ZipperFields", viewModel),
+                    12 => PartialView("Partials/_ButtonFields", viewModel),
                     _ => Content("")
                 };
             }
