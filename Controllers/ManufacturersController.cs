@@ -53,31 +53,36 @@ namespace SewingMaterialsStorage.Controllers
         // POST: Manufacturers/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ManufacturerId,ManufacturerName,CountryId")] Manufacturer manufacturer)
+        public async Task<IActionResult> Create(
+        [Bind("ManufacturerId,ManufacturerName,CountryId")] Manufacturer manufacturer)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
+                    // Добавьте лог для проверки получаемых данных
+                    Console.WriteLine($"Создание производителя: {manufacturer.ManufacturerName}, CountryId: {manufacturer.CountryId}");
+
                     _context.Add(manufacturer);
                     await _context.SaveChangesAsync();
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    // Логирование ошибки
-                    Console.WriteLine($"Ошибка при сохранении: {ex.Message}");
-                    ModelState.AddModelError("", "Произошла ошибка при сохранении. Попробуйте снова.");
+                    // Улучшенное логирование ошибок
+                    Console.WriteLine($"Ошибка при сохранении: {ex.Message}\n{ex.StackTrace}");
+                    ModelState.AddModelError("", $"Ошибка при сохранении: {ex.Message}");
                 }
             }
 
-            // Логирование ошибок валидации
-            foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
-            {
-                Console.WriteLine($"Ошибка валидации: {error.ErrorMessage}");
-            }
+            // Важно: повторно заполняем SelectList при ошибке
+            ViewData["CountryId"] = new SelectList(
+                _context.Countries,
+                "CountryId",
+                "CountryName",
+                manufacturer.CountryId
+            );
 
-            ViewData["CountryId"] = new SelectList(_context.Countries, "CountryId", "CountryName", manufacturer.CountryId);
             return View(manufacturer);
         }
 
@@ -94,6 +99,7 @@ namespace SewingMaterialsStorage.Controllers
             {
                 return NotFound();
             }
+
             ViewData["CountryId"] = new SelectList(_context.Countries, "CountryId", "CountryName", manufacturer.CountryId);
             return View(manufacturer);
         }

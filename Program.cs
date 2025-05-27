@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+п»їusing Microsoft.EntityFrameworkCore;
 using SewingMaterialsStorage.Data;
 
 namespace SewingMaterialsStorage
@@ -17,7 +17,7 @@ namespace SewingMaterialsStorage
 
             var app = builder.Build();
 
-            // Инициализация базы данных
+
             using (var scope = app.Services.CreateScope())
             {
                 var services = scope.ServiceProvider;
@@ -30,7 +30,7 @@ namespace SewingMaterialsStorage
                 catch (Exception ex)
                 {
                     var logger = services.GetRequiredService<ILogger<Program>>();
-                    logger.LogError(ex, "Ошибка при инициализации базы данных");
+                    logger.LogError(ex, "пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ");
                 }
             }
 

@@ -255,9 +255,10 @@ namespace SewingMaterialsStorage.Data
                     .HasColumnName("country_id")
                     .IsRequired();
 
-                entity.HasOne(m => m.Country)
-                    .WithMany()
-                    .HasForeignKey(m => m.CountryId)
+                // Исправленная конфигурация связи
+                entity.HasOne(m => m.Country)  
+                    .WithMany()              
+                    .HasForeignKey(m => m.CountryId)  
                     .HasConstraintName("manufacturers_country_id_fkey")
                     .OnDelete(DeleteBehavior.Restrict);
             });
@@ -325,14 +326,10 @@ namespace SewingMaterialsStorage.Data
             // Настройка MaterialColor
             modelBuilder.Entity<MaterialColor>(entity =>
             {
-                entity.HasKey(e => new { e.MaterialId, e.ColorId })
-                    .HasName("material_colors_pkey");
+                entity.HasKey(e => new { e.MaterialId, e.ColorId });
 
-                entity.Property(e => e.MaterialId)
-                    .HasColumnName("material_id");
-
-                entity.Property(e => e.ColorId)
-                    .HasColumnName("color_id");
+                entity.Property(e => e.MaterialId).HasColumnName("material_id");
+                entity.Property(e => e.ColorId).HasColumnName("color_id");
 
                 entity.HasOne(mc => mc.Material)
                     .WithMany(m => m.Colors)
@@ -341,7 +338,7 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mc => mc.Color)
-                    .WithMany()
+                    .WithMany(c => c.MaterialColors)  // Добавьте коллекцию в модель Color
                     .HasForeignKey(mc => mc.ColorId)
                     .HasConstraintName("material_colors_color_id_fkey")
                     .OnDelete(DeleteBehavior.Restrict);
@@ -350,14 +347,10 @@ namespace SewingMaterialsStorage.Data
             // Настройка MaterialComposition
             modelBuilder.Entity<MaterialComposition>(entity =>
             {
-                entity.HasKey(e => new { e.MaterialId, e.CompositionId })
-                    .HasName("material_compositions_pkey");
+                entity.HasKey(e => new { e.MaterialId, e.CompositionId });
 
-                entity.Property(e => e.MaterialId)
-                    .HasColumnName("material_id");
-
-                entity.Property(e => e.CompositionId)
-                    .HasColumnName("composition_id");
+                entity.Property(e => e.MaterialId).HasColumnName("material_id");
+                entity.Property(e => e.CompositionId).HasColumnName("composition_id");
 
                 entity.HasOne(mc => mc.Material)
                     .WithMany(m => m.Compositions)
@@ -366,7 +359,7 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mc => mc.Composition)
-                    .WithMany()
+                    .WithMany(c => c.MaterialCompositions) 
                     .HasForeignKey(mc => mc.CompositionId)
                     .HasConstraintName("material_compositions_composition_id_fkey")
                     .OnDelete(DeleteBehavior.Restrict);

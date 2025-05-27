@@ -1,7 +1,7 @@
-﻿@model SewingMaterialsStorage.Models.Manufacturer
+﻿@model SewingMaterialsStorage.Models.Color
 
 @{
-    ViewData["Title"] = "Удалить производителя";
+    ViewData["Title"] = "Удалить цвет";
 }
 
 <div class="card shadow-sm">
@@ -10,24 +10,21 @@
     </div>
     <div class="card-body">
         <div class="alert alert-warning">
-            <h5>Вы уверены, что хотите удалить этого производителя?</h5>
+            <h5>Вы уверены, что хотите удалить этот цвет?</h5>
             <p class="mb-0">Это действие нельзя отменить.</p>
         </div>
 
-        <div class="row mb-4">
+        <div class="row">
             <div class="col-md-6">
                 <dl class="row">
-                    <dt class="col-sm-4">Наименование:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ManufacturerName)</dd>
-
-                    <dt class="col-sm-4">Страна:</dt>
-                    <dd class="col-sm-8">@Html.DisplayFor(model => model.Country.CountryName)</dd>
+                    <dt class="col-sm-4">Название:</dt>
+                    <dd class="col-sm-8">@Html.DisplayFor(model => model.ColorName)</dd>
                 </dl>
             </div>
         </div>
 
         <form asp-action="Delete">
-            <input type="hidden" asp-for="ManufacturerId" />
+            <input type="hidden" asp-for="ColorId" />
             <div class="d-flex justify-content-between">
                 <a asp-action="Index" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Назад к списку

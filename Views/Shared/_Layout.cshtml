@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     @RenderSection("Styles", required: false)
     <title>Учет швейных материалов</title>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <style>
@@ -34,6 +35,33 @@
                                 <i class="bi-box-seam me-1"></i>Материалы
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/manufacturers">
+                                <i class="bi-building me-1"></i>Производители
+                            </a>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <i class="bi-book me-1"></i>Справочники
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="/countries">
+                                        <i class="bi-globe me-1"></i>Страны
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/colors">
+                                        <i class="bi-palette me-1"></i>Цвета
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="/compositions">
+                                        <i class="bi-list-check me-1"></i>Составы
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle"
                                href="#"
@@ -62,6 +90,10 @@
         </div>
     </footer>
     @await RenderSectionAsync("Scripts", required: false)
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </body>
 </html>

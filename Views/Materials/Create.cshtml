@@ -6,35 +6,57 @@
 <div class="container mt-4">
     <h2 class="mb-4">@ViewData["Title"]</h2>
 
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show">
+            @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <form asp-action="Create" method="post" id="materialForm">
         <!-- Основные данные -->
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">Основная информация</div>
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-info-circle"></i> Основная информация
+            </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="MaterialName" class="form-label"></label>
-                        <input asp-for="MaterialName" class="form-control" required>
-                        <span asp-validation-for="MaterialName" class="text-danger"></span>
+                        <label asp-for="MaterialName" class="form-label">
+                            Наименование материала <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="MaterialName" class="form-control" placeholder="Введите название материала">
+                        <span asp-validation-for="MaterialName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Article" class="form-label"></label>
-                        <input asp-for="Article" class="form-control">
+                        <label asp-for="Article" class="form-label">Артикул</label>
+                        <input asp-for="Article" class="form-control" placeholder="Введите артикул">
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="PricePerUnit" class="form-label"></label>
-                        <input asp-for="PricePerUnit" type="number" step="0.01"
-                               class="form-control" min="0.01" required>
-                        <span asp-validation-for="PricePerUnit" class="text-danger"></span>
+                        <label asp-for="PricePerUnit" class="form-label">
+                            Цена за единицу (руб) <span class="text-danger">*</span>
+                        </label>
+                        <input asp-for="PricePerUnit" type="number" class="form-control"
+                               placeholder="0" min="1" step="1">
+                        <span asp-validation-for="PricePerUnit" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="MinThreshold" class="form-label"></label>
+                        <label asp-for="MinThreshold" class="form-label">
+                            Минимальный запас <span class="text-danger">*</span>
+                        </label>
                         <input asp-for="MinThreshold" type="number" class="form-control"
-                               min="1" required>
-                        <span asp-validation-for="MinThreshold" class="text-danger"></span>
+                               placeholder="0" min="1">
+                        <span asp-validation-for="MinThreshold" class="text-danger small"></span>
+                    </div>
+
+                    <div class="col-12">
+                        <label asp-for="Notes" class="form-label">Примечания</label>
+                        <textarea asp-for="Notes" class="form-control" rows="2"
+                                  placeholder="Дополнительная информация о материале"></textarea>
                     </div>
                 </div>
             </div>
@@ -42,20 +64,25 @@
 
         <!-- Производитель -->
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">Производитель</div>
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-building"></i> Производитель
+            </div>
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
-                        <label class="form-label">Производитель</label>
+                        <label class="form-label">
+                            Производитель <span class="text-danger">*</span>
+                        </label>
                         <select asp-for="ManufacturerId" asp-items="ViewBag.Manufacturers"
-                                class="form-select" id="manufacturerSelect">
-                            <option value="">-- Выберите --</option>
+                                class="form-select" required>
+                            <option value="">-- Выберите производителя --</option>
                         </select>
+                        <span asp-validation-for="ManufacturerId" class="text-danger small"></span>
                         <div class="mt-2">
                             <a asp-controller="Manufacturers" asp-action="Create"
                                class="btn btn-sm btn-outline-primary"
                                target="_blank">
-                                <i class="bi bi-plus-circle"></i> Добавить нового
+                                <i class="bi bi-plus-circle"></i> Добавить нового производителя
                             </a>
                         </div>
                     </div>
@@ -65,21 +92,59 @@
 
         <!-- Цвета и состав -->
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">Характеристики</div>
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-palette"></i> Характеристики
+            </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label class="form-label">Цвета</label>
-                        <select asp-for="Colors" class="form-select" multiple
-                                asp-items="ViewBag.Colors" size="5"
-                                name="selectedColors"></select>
+                        <div class="d-flex justify-content-between mb-2">
+                            <input type="text" class="form-control" placeholder="Поиск цвета по названию..."
+                                   oninput="filterCheckboxes('colorsContainer', this.value)">
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                    onclick="toggleAllCheckboxes('colorsContainer', false)">
+                                Снять все
+                            </button>
+                        </div>
+                        <div class="form-control" style="height: auto; min-height: 38px; max-height: 200px; overflow-y: auto;"
+                             id="colorsContainer">
+                            @foreach (var color in ViewBag.AllColors as List<Color>)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="selectedColors" value="@color.ColorId" id="color-@color.ColorId">
+                                    <label class="form-check-label" for="color-@color.ColorId">
+                                        @color.ColorName
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <div class="col-md-6">
                         <label class="form-label">Состав</label>
-                        <select asp-for="Compositions" class="form-select" multiple
-                                asp-items="ViewBag.Compositions" size="5"
-                                name="selectedCompositions"></select>
+                        <div class="d-flex justify-content-between mb-2">
+                            <input type="text" class="form-control" placeholder="Поиск состава по названию..."
+                                   oninput="filterCheckboxes('compositionsContainer', this.value)">
+                            <button type="button" class="btn btn-sm btn-outline-secondary ms-2"
+                                    onclick="toggleAllCheckboxes('compositionsContainer', false)">
+                                Снять все
+                            </button>
+                        </div>
+                        <div class="form-control" style="height: auto; min-height: 38px; max-height: 200px; overflow-y: auto;"
+                             id="compositionsContainer">
+                            @foreach (var composition in ViewBag.AllCompositions as List<Composition>)
+                            {
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox"
+                                           name="selectedCompositions" value="@composition.CompositionId" id="composition-@composition.CompositionId">
+                                    <label class="form-check-label" for="composition-@composition.CompositionId">
+                                        @composition.CompositionName
+                                    </label>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -87,16 +152,20 @@
 
         <!-- Специфические характеристики -->
         <div class="card mb-4">
-            <div class="card-header bg-primary text-white">Спецификация</div>
+            <div class="card-header bg-primary text-white">
+                <i class="bi bi-tags"></i> Спецификация
+            </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="TypeId" class="form-label"></label>
+                        <label asp-for="TypeId" class="form-label">
+                            Тип материала <span class="text-danger">*</span>
+                        </label>
                         <select asp-for="TypeId" asp-items="ViewBag.MaterialTypes"
                                 class="form-select" id="typeSelect" required>
-                            <option value="">-- Выберите тип --</option>
+                            <option value="">-- Выберите тип материала --</option>
                         </select>
-                        <span asp-validation-for="TypeId" class="text-danger"></span>
+                        <span asp-validation-for="TypeId" class="text-danger small"></span>
                     </div>
 
                     <div id="dynamicFields" class="row g-3 mt-2"></div>
@@ -104,38 +173,86 @@
             </div>
         </div>
 
-        <div class="text-end">
-            <button type="submit" class="btn btn-primary btn-lg">
-                <i class="bi bi-save"></i> Сохранить
+        <div class="d-flex justify-content-between mt-4">
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Назад к списку
+            </a>
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-save"></i> Сохранить материал
             </button>
         </div>
     </form>
 </div>
 
 @section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
     <script>
-        // Динамическая загрузка характеристик
-        document.getElementById('typeSelect').addEventListener('change', function () {
-            const typeId = this.value;
-            fetch(`/Materials/GetTypeFields?typeId=${typeId}`)
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('dynamicFields').innerHTML = html;
-                });
-        });
+        function filterCheckboxes(containerId, searchText) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('.form-check');
 
-        // Обновление списка производителей после добавления
-        document.getElementById('manufacturerSelect').addEventListener('focus', function () {
-            fetch('/Manufacturers/GetManufacturers')
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById('manufacturerSelect');
-                    select.innerHTML = '<option value="">-- Выберите --</option>';
-                    data.forEach(item => {
-                        const option = new Option(item.text, item.value);
-                        select.add(option);
-                    });
+            checkboxes.forEach(checkbox => {
+                const label = checkbox.querySelector('.form-check-label');
+                if (label.textContent.toLowerCase().includes(searchText.toLowerCase())) {
+                    checkbox.style.display = 'block';
+                } else {
+                    checkbox.style.display = 'none';
+                }
+            });
+        }
+
+        function toggleAllCheckboxes(containerId, checked) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(checkbox => {
+                if (checkbox.style.display !== 'none') {
+                    checkbox.checked = checked;
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            // Динамическая загрузка характеристик
+            $('#typeSelect').change(function () {
+                const typeId = $(this).val();
+                $.get(`/Materials/GetTypeFields?typeId=${typeId}`, function (data) {
+                    $('#dynamicFields').html(data);
                 });
+            });
+
+            // Валидация формы
+            $('#materialForm').validate({
+                rules: {
+                    MaterialName: { required: true, minlength: 2 },
+                    PricePerUnit: { required: true, min: 1 },
+                    MinThreshold: { required: true, min: 1 },
+                    ManufacturerId: { required: true },
+                    TypeId: { required: true }
+                },
+                messages: {
+                    MaterialName: {
+                        required: "Пожалуйста, введите название материала",
+                        minlength: "Название должно содержать минимум 2 символа"
+                    },
+                    PricePerUnit: {
+                        required: "Пожалуйста, укажите цену",
+                        min: "Цена должна быть не менее 1 рубля"
+                    },
+                    MinThreshold: {
+                        required: "Пожалуйста, укажите минимальный запас",
+                        min: "Минимальный запас должен быть не менее 1"
+                    },
+                    ManufacturerId: "Пожалуйста, выберите производителя",
+                    TypeId: "Пожалуйста, выберите тип материала"
+                },
+                errorElement: 'span',
+                errorClass: 'text-danger small',
+                errorPlacement: function (error, element) {
+                    error.insertAfter(element);
+                }
+            });
         });
     </script>
 }

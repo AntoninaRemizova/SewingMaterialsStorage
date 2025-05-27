@@ -21,6 +21,8 @@ namespace SewingMaterialsStorage.Controllers
             var materials = await _context.Materials
                 .Include(m => m.MaterialType)
                 .Include(m => m.Manufacturer)
+                .Include(m => m.Colors).ThenInclude(mc => mc.Color)
+                .Include(m => m.Compositions).ThenInclude(mc => mc.Composition)
                 .ToListAsync();
             return View(materials);
         }
@@ -28,10 +30,7 @@ namespace SewingMaterialsStorage.Controllers
         // GET: Materials/Details/5
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var material = await _context.Materials
                 .Include(m => m.MaterialType)
@@ -44,44 +43,45 @@ namespace SewingMaterialsStorage.Controllers
                 .Include(m => m.Compositions).ThenInclude(mc => mc.Composition)
                 .FirstOrDefaultAsync(m => m.MaterialId == id);
 
-            if (material == null)
-            {
-                return NotFound();
-            }
-
+            if (material == null) return NotFound();
             return View(material);
         }
 
         // GET: Materials/Create
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewData["TypeId"] = new SelectList(_context.MaterialTypes, "TypeId", "TypeName");
-            ViewData["ManufacturerId"] = new SelectList(_context.Manufacturers, "ManufacturerId", "ManufacturerName");
+            await LoadSelectListsAsync();
+
+            // Добавляем списки всех цветов и составов для чекбоксов
+            ViewBag.AllColors = await _context.Colors.ToListAsync();
+            ViewBag.AllCompositions = await _context.Compositions.ToListAsync();
+
             return View();
         }
 
         // POST: Materials/Create
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(
             Material material,
-            List<int> selectedColors,
-            List<int> selectedCompositions,
-            MaterialFabric? fabricDetails,
-            MaterialThread? threadDetails,
-            MaterialZipper? zipperDetails,
-            MaterialButton? buttonDetails)
+            int[] selectedColors,
+            int[] selectedCompositions,
+            MaterialFabric fabricDetails,
+            MaterialThread threadDetails,
+            MaterialZipper zipperDetails,
+            MaterialButton buttonDetails)
         {
             if (ModelState.IsValid)
             {
-                using var transaction = _context.Database.BeginTransaction();
+                using var transaction = await _context.Database.BeginTransactionAsync();
                 try
                 {
-                    // Сохранение материала
-                    _context.Materials.Add(material);
+                    // Сохранение основного материала
+                    _context.Add(material);
                     await _context.SaveChangesAsync();
 
-                    // Привязка цветов
-                    if (selectedColors != null)
+                    // Обработка цветов
+                    if (selectedColors != null && selectedColors.Length > 0)
                     {
                         foreach (var colorId in selectedColors)
                         {
@@ -93,8 +93,8 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Привязка составов
-                    if (selectedCompositions != null)
+                    // Обработка составов
+                    if (selectedCompositions != null && selectedCompositions.Length > 0)
                     {
                         foreach (var compositionId in selectedCompositions)
                         {
@@ -106,24 +106,21 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Сохранение специфических характеристик
+                    // Обработка специфических характеристик
                     switch (material.TypeId)
                     {
                         case 1 when fabricDetails != null:
                             fabricDetails.MaterialId = material.MaterialId;
                             _context.MaterialFabrics.Add(fabricDetails);
                             break;
-
                         case 2 when threadDetails != null:
                             threadDetails.MaterialId = material.MaterialId;
                             _context.MaterialThreads.Add(threadDetails);
                             break;
-
                         case 3 when zipperDetails != null:
                             zipperDetails.MaterialId = material.MaterialId;
                             _context.MaterialZippers.Add(zipperDetails);
                             break;
-
                         case 4 when buttonDetails != null:
                             buttonDetails.MaterialId = material.MaterialId;
                             _context.MaterialButtons.Add(buttonDetails);
@@ -131,17 +128,17 @@ namespace SewingMaterialsStorage.Controllers
                     }
 
                     await _context.SaveChangesAsync();
-                    transaction.Commit();
+                    await transaction.CommitAsync();
+                    TempData["SuccessMessage"] = "Материал успешно добавлен";
                     return RedirectToAction(nameof(Index));
                 }
                 catch (Exception ex)
                 {
-                    transaction.Rollback();
-                    ModelState.AddModelError("", $"Ошибка сохранения: {ex.Message}");
+                    await transaction.RollbackAsync();
+                    ModelState.AddModelError("", $"Ошибка при сохранении: {ex.Message}");
                 }
             }
 
-            // Загрузка справочников при ошибке
             await LoadSelectListsAsync();
             return View(material);
         }
@@ -150,27 +147,45 @@ namespace SewingMaterialsStorage.Controllers
         {
             ViewBag.Manufacturers = new SelectList(
                 await _context.Manufacturers.ToListAsync(),
-                "ManufacturerId",
-                "ManufacturerName"
-            );
+                "ManufacturerId", "ManufacturerName");
 
             ViewBag.Colors = new SelectList(
                 await _context.Colors.ToListAsync(),
-                "ColorId",
-                "Name"
-            );
+                "ColorId", "ColorName");
 
             ViewBag.Compositions = new SelectList(
                 await _context.Compositions.ToListAsync(),
-                "CompositionId",
-                "Name"
-            );
+                "CompositionId", "CompositionName");
 
             ViewBag.MaterialTypes = new SelectList(
                 await _context.MaterialTypes.ToListAsync(),
-                "TypeId",
-                "TypeName"
-            );
+                "TypeId", "TypeName");
+        }
+
+        // GET: Materials/GetColorsForSelect - для Select2
+        [HttpGet]
+        public async Task<IActionResult> GetCompositionsForSelect(string searchTerm)
+        {
+            var compositions = await _context.Compositions
+                .Where(c => string.IsNullOrEmpty(searchTerm) ||
+                           c.CompositionName.Contains(searchTerm))
+                .Select(c => new { id = c.CompositionId, text = c.CompositionName })
+                .ToListAsync();
+
+            return Json(compositions);
+        }
+
+        [HttpGet]
+        public IActionResult GetTypeFields(int typeId)
+        {
+            return typeId switch
+            {
+                1 => PartialView("_FabricFields", new MaterialFabric()),
+                2 => PartialView("_ThreadFields", new MaterialThread()),
+                3 => PartialView("_ZipperFields", new MaterialZipper()),
+                4 => PartialView("_ButtonFields", new MaterialButton()),
+                _ => Content("")
+            };
         }
 
         // GET: Materials/Edit/5
@@ -262,17 +277,6 @@ namespace SewingMaterialsStorage.Controllers
             return _context.Materials.Any(e => e.MaterialId == id);
         }
 
-        [HttpGet]
-        public IActionResult GetTypeFields(int typeId)
-        {
-            return typeId switch
-            {
-                1 => PartialView("Partials/_FabricFields", new MaterialFabric()),
-                2 => PartialView("Partials/_ThreadFields", new MaterialThread()),
-                3 => PartialView("Partials/_ZipperFields", new MaterialZipper()),
-                4 => PartialView("Partials/_ButtonFields", new MaterialButton()),
-                _ => Content("")
-            };
-        }
+        
     }
 }

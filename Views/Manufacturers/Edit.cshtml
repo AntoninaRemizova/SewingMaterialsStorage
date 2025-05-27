@@ -14,22 +14,22 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row mb-3">
-                <div class="col-md-6">
+                <div class="col-md-6 mb-3">
                     <label asp-for="ManufacturerName" class="form-label">Наименование производителя</label>
-                    <input asp-for="ManufacturerName" class="form-control" />
+                    <input asp-for="ManufacturerName" class="form-control" placeholder="Введите название" />
                     <span asp-validation-for="ManufacturerName" class="text-danger"></span>
                 </div>
-                <div class="form-group">
-                    <label asp-for="CountryId" class="control-label">Страна</label>
-                    <select asp-for="CountryId" class="form-control" asp-items="ViewBag.Countries">
+                <div class="col-md-6 mb-3">
+                    <label asp-for="CountryId" class="form-label">Страна</label>
+                    <select asp-for="CountryId" class="form-select" asp-items="ViewBag.CountryId">
                         <option value="">-- Выберите страну --</option>
                     </select>
                     <span asp-validation-for="CountryId" class="text-danger"></span>
                 </div>
             </div>
 
-            <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
+            <div class="d-flex justify-content-between mt-4">
+                <a asp-action="Index" class="btn btn-outline-secondary">
                     <i class="bi bi-arrow-left"></i> Назад к списку
                 </a>
                 <button type="submit" class="btn btn-primary">

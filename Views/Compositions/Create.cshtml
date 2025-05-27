@@ -1,0 +1,37 @@
+﻿@model SewingMaterialsStorage.Models.Composition
+
+@{
+    ViewData["Title"] = "Добавить состав";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3 class="card-title"><i class="bi bi-plus-circle"></i> @ViewData["Title"]</h3>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="CompositionName" class="form-label">Название состава <span class="text-danger">*</span></label>
+                <input asp-for="CompositionName" class="form-control" placeholder="Введите название состава" />
+                <span asp-validation-for="CompositionName" class="text-danger"></span>
+            </div>
+
+            <div class="d-flex justify-content-between">
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Назад к списку
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-save"></i> Сохранить
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
