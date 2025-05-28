@@ -3,7 +3,13 @@
 @{
     ViewData["Title"] = "Удалить цвет";
 }
-
+@if (Model.MaterialColors?.Count > 0)
+{
+    <div class="alert alert-warning">
+        Этот цвет используется в @Model.MaterialColors.Count материалах.
+        Удаление приведет к удалению этих связей.
+    </div>
+}
 <div class="card shadow-sm">
     <div class="card-header bg-danger text-white">
         <h3 class="card-title"><i class="bi bi-exclamation-triangle"></i> @ViewData["Title"]</h3>
@@ -36,3 +42,4 @@
         </form>
     </div>
 </div>
+

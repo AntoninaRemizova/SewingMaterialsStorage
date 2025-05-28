@@ -1,44 +1,80 @@
-﻿@model SewingMaterialsStorage.Models.Supply
+﻿@model SewingMaterialsStorage.ViewModels.SupplyViewModel
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Редактировать поступление";
 }
 
-<h1>Edit</h1>
+<div class="container mt-4">
+    <h2>@ViewData["Title"]</h2>
+    <hr />
 
-<h4>Supply</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="SupplyId" />
-            <div class="form-group">
-                <label asp-for="MaterialId" class="control-label"></label>
-                <select asp-for="MaterialId" class="form-control" asp-items="ViewBag.MaterialId"></select>
-                <span asp-validation-for="MaterialId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="SupplyDate" class="control-label"></label>
-                <input asp-for="SupplyDate" class="form-control" />
-                <span asp-validation-for="SupplyDate" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" asp-for="SupplyId" />
 
-<div>
-    <a asp-action="Index">Back to List</a>
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group mb-3">
+                    <label asp-for="MaterialId" class="control-label"></label>
+                    <select asp-for="MaterialId" asp-items="Model.Materials" class="form-control">
+                        <option value="">-- Выберите материал --</option>
+                    </select>
+                    <span asp-validation-for="MaterialId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Quantity" class="control-label"></label>
+                    <input asp-for="Quantity" class="form-control" />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="SupplyDate" class="control-label"></label>
+                    <input asp-for="SupplyDate" type="date" class="form-control" />
+                    <span asp-validation-for="SupplyDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label class="control-label">Сумма</label>
+                    <input asp-for="TotalAmount" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Сохранить
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            $('#MaterialId, #Quantity').change(function () {
+                calculateTotal();
+            });
+
+            function calculateTotal() {
+                var materialId = $('#MaterialId').val();
+                var quantity = parseFloat($('#Quantity').val()) || 0;
+
+                if (materialId) {
+                    $.get('/Supplies/GetMaterialPrice', { id: materialId }, function (price) {
+                        var total = price * quantity;
+                        $('#TotalAmount').val(total.toFixed(2));
+                    });
+                }
+            }
+        });
+    </script>
 }

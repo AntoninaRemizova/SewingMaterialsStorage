@@ -1,20 +1,19 @@
-﻿@model SewingMaterialsStorage.ViewModels.CreateMaterialViewModel
+﻿@model SewingMaterialsStorage.ViewModels.MaterialViewModel
 
 <div class="col-md-6">
-    <label class="form-label">Тип молнии</label>
-    <select asp-for="ZipperType" class="form-select" required>
+    <label asp-for="ZipperType" class="form-label required-field">Тип молнии</label>
+    <select asp-for="ZipperType" class="form-select">
         <option value="">-- Выберите тип --</option>
-        <option>Металлическая</option>
-        <option>Пластиковая</option>
-        <option>Скрытая</option>
+        <option value="Металлическая">Металлическая</option>
+        <option value="Пластиковая">Пластиковая</option>
+        <option value="Скрытая">Скрытая</option>
     </select>
     <span asp-validation-for="ZipperType" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label class="form-label">Длина (см)</label>
-    <input asp-for="ZipperLength" type="number" step="1"
-           class="form-control" min="1" required
-           placeholder="1">
+    <label asp-for="ZipperLength" class="form-label required-field">Длина (см)</label>
+    <input asp-for="ZipperLength" type="number" step="1" min="1"
+           class="form-control" placeholder="Введите длину">
     <span asp-validation-for="ZipperLength" class="text-danger small"></span>
 </div>

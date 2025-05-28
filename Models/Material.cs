@@ -25,7 +25,7 @@ namespace SewingMaterialsStorage.Models
         [Required(ErrorMessage = "Выберите производителя")]
         public int? ManufacturerId { get; set; }
         public string? Notes { get; set; }
-        public string? Article { get; set; }
+        public string Article { get; set; }
 
         [Required(ErrorMessage = "Введите стоимость материала")]
         [Range(0.01, double.MaxValue, ErrorMessage = "Цена должна быть больше 0")]
@@ -40,9 +40,12 @@ namespace SewingMaterialsStorage.Models
         public MaterialThread ThreadDetails { get; set; }
         public MaterialZipper ZipperDetails { get; set; }
         public MaterialButton ButtonDetails { get; set; }
-        public List<MaterialColor> Colors { get; set; }
-        public List<MaterialComposition> Compositions { get; set; }
+
         public List<Supply> Supplies { get; set; }
         public List<Consumption> Consumptions { get; set; }
+
+
+        public ICollection<MaterialColor> Colors { get; set; } = new List<MaterialColor>();
+        public ICollection<MaterialComposition> Compositions { get; set; } = new List<MaterialComposition>();
     }
 }

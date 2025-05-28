@@ -1,9 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace SewingMaterialsStorage.Data.Migrations
+namespace SewingMaterialsStorage.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -91,12 +92,12 @@ namespace SewingMaterialsStorage.Data.Migrations
                     material_id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityAlwaysColumn),
                     material_name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    type_id = table.Column<int>(type: "integer", nullable: false),
+                    manufacturer_id = table.Column<int>(type: "integer", nullable: false),
+                    notes = table.Column<string>(type: "text", nullable: true),
                     article = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     price_per_unit = table.Column<decimal>(type: "numeric(10,2)", nullable: false, defaultValue: 0m),
-                    manufacturer_id = table.Column<int>(type: "integer", nullable: false),
-                    min_threshold = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
-                    notes = table.Column<string>(type: "text", nullable: false),
-                    type_id = table.Column<int>(type: "integer", nullable: false)
+                    min_threshold = table.Column<int>(type: "integer", nullable: false, defaultValue: 0)
                 },
                 constraints: table =>
                 {
@@ -165,7 +166,7 @@ namespace SewingMaterialsStorage.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("material_colors_pkey", x => new { x.material_id, x.color_id });
+                    table.PrimaryKey("PK_material_colors", x => new { x.material_id, x.color_id });
                     table.ForeignKey(
                         name: "material_colors_color_id_fkey",
                         column: x => x.color_id,
@@ -189,7 +190,7 @@ namespace SewingMaterialsStorage.Data.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("material_compositions_pkey", x => new { x.material_id, x.composition_id });
+                    table.PrimaryKey("PK_material_compositions", x => new { x.material_id, x.composition_id });
                     table.ForeignKey(
                         name: "material_compositions_composition_id_fkey",
                         column: x => x.composition_id,

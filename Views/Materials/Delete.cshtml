@@ -1,34 +1,50 @@
-﻿@model SewingMaterialsStorage.Models.Manufacturer
+﻿@model SewingMaterialsStorage.Models.Material
 
-@{
-    ViewData["Title"] = "Удалить производителя";
-}
+<div class="container mt-4">
+    <h2 class="mb-4 text-danger">
+        <i class="bi bi-exclamation-triangle"></i> Удаление материала
+    </h2>
 
-<div class="card shadow-sm">
-    <div class="card-header bg-danger text-white">
-        <h3 class="card-title"><i class="bi bi-exclamation-triangle"></i> @ViewData["Title"]</h3>
+    <div class="alert alert-danger">
+        <h4>Вы уверены, что хотите удалить этот материал?</h4>
+        <p class="mb-0">Это действие нельзя отменить. Все связанные данные будут удалены.</p>
     </div>
-    <div class="card-body">
-        <h4>Вы уверены, что хотите удалить этого производителя?</h4>
-        <hr />
-        <dl class="row">
-            <dt class="col-sm-3">Наименование:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.ManufacturerName)</dd>
 
-            <dt class="col-sm-3">Страна:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Country.CountryName)</dd>
-        </dl>
+    <div class="card mt-3">
+        <div class="card-header bg-danger text-white">
+            @Model.MaterialName
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Тип</dt>
+                <dd class="col-sm-9">@Model.MaterialType?.TypeName</dd>
 
-        <form asp-action="Delete">
-            <input type="hidden" asp-for="ManufacturerId" />
-            <div class="d-flex justify-content-between">
-                <a asp-action="Index" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Отмена
-                </a>
-                <button type="submit" class="btn btn-danger">
-                    <i class="bi bi-trash"></i> Удалить
-                </button>
-            </div>
-        </form>
+                <dt class="col-sm-3">Артикул</dt>
+                <dd class="col-sm-9">@(Model.Article ?? "не указан")</dd>
+
+                <dt class="col-sm-3">Цена</dt>
+                <dd class="col-sm-9">@Model.PricePerUnit.ToString("C")</dd>
+
+                <dt class="col-sm-3">Производитель</dt>
+                <dd class="col-sm-9">@Model.Manufacturer?.ManufacturerName</dd>
+            </dl>
+
+            @if (!string.IsNullOrEmpty(Model.Notes))
+            {
+                <div class="alert alert-warning">
+                    <strong><i class="bi bi-info-circle"></i> Примечание:</strong> @Model.Notes
+                </div>
+            }
+        </div>
     </div>
+
+    <form asp-action="Delete" class="mt-4">
+        <input type="hidden" asp-for="MaterialId" />
+        <button type="submit" class="btn btn-danger">
+            <i class="bi bi-trash"></i> Удалить
+        </button>
+        <a asp-action="Details" asp-route-id="@Model.MaterialId" class="btn btn-outline-secondary ms-2">
+            <i class="bi bi-arrow-left"></i> Отмена
+        </a>
+    </form>
 </div>

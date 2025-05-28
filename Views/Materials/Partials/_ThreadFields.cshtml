@@ -1,17 +1,15 @@
-﻿@model SewingMaterialsStorage.ViewModels.CreateMaterialViewModel
+﻿@model SewingMaterialsStorage.ViewModels.MaterialViewModel
 
 <div class="col-md-6">
-    <label class="form-label">Толщина (метрическая система)</label>
-    <input asp-for="Thickness" type="number" step="1"
-           class="form-control" min="1" required
-           placeholder="1">
+    <label asp-for="Thickness" class="form-label required-field">Толщина (мм)</label>
+    <input asp-for="Thickness" type="number" step="0.1" min="0.1"
+           class="form-control" placeholder="Введите толщину">
     <span asp-validation-for="Thickness" class="text-danger small"></span>
 </div>
 
 <div class="col-md-6">
-    <label class="form-label">Длина в катушке (м)</label>
-    <input asp-for="LengthPerSpool" type="number"
-           class="form-control" min="1" required
-           placeholder="1">
+    <label asp-for="LengthPerSpool" class="form-label required-field">Длина в катушке (м)</label>
+    <input asp-for="LengthPerSpool" type="number" step="1" min="1"
+           class="form-control" placeholder="Введите длину">
     <span asp-validation-for="LengthPerSpool" class="text-danger small"></span>
 </div>

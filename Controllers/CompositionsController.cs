@@ -1,18 +1,95 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using OfficeOpenXml;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models;
+using SewingMaterialsStorage.ViewModels;
 
 namespace SewingMaterialsStorage.Controllers
 {
     public class CompositionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<MaterialsController> _logger;
 
-        public CompositionsController(ApplicationDbContext context)
+        public CompositionsController(ApplicationDbContext context, ILogger<MaterialsController> logger)
         {
             _context = context;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public IActionResult Import()
+        {
+            return View(new ExcelImportViewModel { ImportType = ImportType.Compositions });
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Import(ExcelImportViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                return View(model);
+            }
+
+            try
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await model.ExcelFile.CopyToAsync(stream);
+                    using (var package = new ExcelPackage(stream))
+                    {
+                        var worksheet = package.Workbook.Worksheets[0];
+                        var rowCount = worksheet.Dimension.Rows;
+
+                        int addedCount = 0;
+                        int updatedCount = 0;
+                        int skippedCount = 0;
+
+                        // Получаем все существующие составы для быстрого поиска
+                        var existingCompositions = await _context.Compositions
+                            .ToDictionaryAsync(c => c.CompositionName, c => c);
+
+                        for (int row = 2; row <= rowCount; row++)
+                        {
+                            var compositionName = worksheet.Cells[row, 1].Text.Trim();
+
+                            if (string.IsNullOrWhiteSpace(compositionName))
+                            {
+                                skippedCount++;
+                                continue;
+                            }
+
+                            if (existingCompositions.TryGetValue(compositionName, out var existingComposition))
+                            {
+                                // Состав уже существует - можно обновить, если есть другие поля
+                                // В данном случае просто пропускаем, так как обновлять нечего
+                                skippedCount++;
+                            }
+                            else
+                            {
+                                // Новый состав - добавляем
+                                var newComposition = new Composition { CompositionName = compositionName };
+                                _context.Compositions.Add(newComposition);
+                                addedCount++;
+                                existingCompositions.Add(compositionName, newComposition); // Добавляем в словарь
+                            }
+                        }
+
+                        await _context.SaveChangesAsync();
+
+                        TempData["SuccessMessage"] = $"Импорт завершен. Добавлено: {addedCount}, обновлено: {updatedCount}, пропущено (уже существует): {skippedCount}";
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Ошибка при импорте составов");
+                TempData["ErrorMessage"] = "Ошибка при импорте: " + ex.Message;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Compositions

@@ -1,4 +1,4 @@
-﻿@model SewingMaterialsStorage.ViewModels.CreateMaterialViewModel
+﻿@model SewingMaterialsStorage.ViewModels.MaterialViewModel
 @{
     ViewData["Title"] = "Добавить материал";
 }
@@ -6,6 +6,7 @@
 <div class="container mt-4">
     <h2 class="mb-4">@ViewData["Title"]</h2>
 
+    <!-- Сообщения об успехе/ошибке -->
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
@@ -14,47 +15,58 @@
         </div>
     }
 
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show">
+            @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
     <form asp-action="Create" method="post" id="materialForm">
         <!-- Основные данные -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <i class="bi bi-info-circle"></i> Основная информация
+                <i class="bi bi-info-circle"></i> Основная информация                
             </div>
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="MaterialName" class="form-label">
-                            Наименование материала <span class="text-danger">*</span>
+                        <label asp-for="MaterialName" class="form-label required-field">
+                            Наименование материала
                         </label>
                         <input asp-for="MaterialName" class="form-control" placeholder="Введите название материала">
                         <span asp-validation-for="MaterialName" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="Article" class="form-label">Артикул</label>
+                        <label asp-for="Article" class="form-label required-field">
+                            Артикул
+                        </label>
                         <input asp-for="Article" class="form-control" placeholder="Введите артикул">
+                        <span asp-validation-for="Article" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="PricePerUnit" class="form-label">
-                            Цена за единицу (руб) <span class="text-danger">*</span>
+                        <label asp-for="PricePerUnit" class="form-label required-field">
+                            Цена за единицу (руб)
                         </label>
-                        <input asp-for="PricePerUnit" type="number" class="form-control"
-                               placeholder="1" min="1" step="1">
+                        <input asp-for="PricePerUnit" type="number" class="form-control" placeholder="1" min="1" step="1">
                         <span asp-validation-for="PricePerUnit" class="text-danger small"></span>
                     </div>
 
                     <div class="col-md-6">
-                        <label asp-for="MinThreshold" class="form-label">
-                            Минимальный запас <span class="text-danger">*</span>
+                        <label asp-for="MinThreshold" class="form-label required-field">
+                            Минимальный запас
                         </label>
-                        <input asp-for="MinThreshold" type="number" class="form-control"
-                               placeholder="1" min="1">
+                        <input asp-for="MinThreshold" type="number" class="form-control" placeholder="1" min="1">
                         <span asp-validation-for="MinThreshold" class="text-danger small"></span>
                     </div>
 
                     <div class="col-12">
-                        <label asp-for="Notes" class="form-label">Примечания</label>
+                        <label asp-for="Notes" class="form-label">
+                            Примечания
+                        </label>
                         <textarea asp-for="Notes" class="form-control" rows="2"
                                   placeholder="Дополнительная информация о материале"></textarea>
                     </div>
@@ -70,18 +82,16 @@
             <div class="card-body">
                 <div class="row">
                     <div class="col-md-8">
-                        <label class="form-label">
-                            Производитель <span class="text-danger">*</span>
+                        <label class="form-label required-field">
+                            Производитель
                         </label>
-                        <select asp-for="ManufacturerId" asp-items="ViewBag.Manufacturers"
-                                class="form-select" required>
+                        <select asp-for="ManufacturerId" asp-items="ViewBag.Manufacturers" class="form-select">
                             <option value="">-- Выберите производителя --</option>
                         </select>
                         <span asp-validation-for="ManufacturerId" class="text-danger small"></span>
                         <div class="mt-2">
                             <a asp-controller="Manufacturers" asp-action="Create"
-                               class="btn btn-sm btn-outline-primary"
-                               target="_blank">
+                               class="btn btn-sm btn-outline-primary" target="_blank">
                                 <i class="bi bi-plus-circle"></i> Добавить нового производителя
                             </a>
                         </div>
@@ -98,7 +108,9 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-12">
-                        <label class="form-label">Цвета материала</label>
+                        <label class="form-label required-field">
+                            Цвета материала
+                        </label>
                         <div class="d-flex justify-content-between mb-2">
                             <input type="text" class="form-control" placeholder="Поиск цвета по названию..."
                                    oninput="filterCheckboxes('colorsContainer', this.value)">
@@ -107,19 +119,20 @@
                                 Снять все
                             </button>
                         </div>
-                        <div class="form-control" style="height: auto; min-height: 38px; max-height: 200px; overflow-y: auto;"
-                             id="colorsContainer">
+                        <div class="form-control colors-container" id="colorsContainer">
                             @foreach (var color in ViewBag.AllColors as List<Color>)
                             {
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox"
-                                           name="selectedColors" value="@color.ColorId" id="color-@color.ColorId">
+                                           name="SelectedColors" value="@color.ColorId" id="color-@color.ColorId">
                                     <label class="form-check-label" for="color-@color.ColorId">
                                         @color.ColorName
                                     </label>
                                 </div>
                             }
                         </div>
+                        <span class="text-danger small field-validation-valid"
+                              data-valmsg-for="SelectedColors" data-valmsg-replace="true"></span>
                     </div>
                 </div>
             </div>
@@ -133,11 +146,11 @@
             <div class="card-body">
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label asp-for="TypeId" class="form-label">
-                            Тип материала <span class="text-danger">*</span>
+                        <label asp-for="TypeId" class="form-label required-field">
+                            Тип материала
                         </label>
                         <select asp-for="TypeId" asp-items="ViewBag.MaterialTypes"
-                                class="form-select" id="typeSelect" required>
+                                class="form-select" id="typeSelect">
                             <option value="">-- Выберите тип материала --</option>
                         </select>
                         <span asp-validation-for="TypeId" class="text-danger small"></span>
@@ -148,6 +161,7 @@
             </div>
         </div>
 
+        <!-- Кнопки действий -->
         <div class="d-flex justify-content-between mt-4">
             <a asp-action="Index" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад к списку
@@ -159,16 +173,30 @@
     </form>
 </div>
 
-@section Scripts {
-    <!-- Сначала подключаем jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Styles {
+    <style>
+        .required-field::after {
+            content: " *";
+            color: #dc3545;
+        }
 
-    <!-- Затем стандартные валидационные скрипты -->
+        .colors-container {
+            height: auto;
+            min-height: 38px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+}
+
+@section Scripts {
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     @{
         await Html.RenderPartialAsync("_ValidationScriptsPartial");
     }
 
     <script>
+        // Фильтрация чекбоксов
         function filterCheckboxes(containerId, searchText) {
             const container = document.getElementById(containerId);
             const checkboxes = container.querySelectorAll('.form-check');
@@ -183,6 +211,7 @@
             });
         }
 
+        // Переключение всех чекбоксов
         function toggleAllCheckboxes(containerId, checked) {
             const container = document.getElementById(containerId);
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
@@ -192,13 +221,11 @@
                 }
             });
         }
-        
 
         $(document).ready(function () {
-            // Динамическая загрузка характеристик при изменении типа материала
+            // Динамическая загрузка полей при изменении типа материала
             $('#typeSelect').change(function () {
                 const typeId = $(this).val();
-                console.log('Selected type:', typeId);
                 $('#dynamicFields').empty();
 
                 if (!typeId) return;
@@ -212,8 +239,7 @@
                         form.removeData('unobtrusiveValidation');
                         $.validator.unobtrusive.parse(form);
                     })
-                    .fail(function (jqXHR, textStatus, errorThrown) {
-                        console.error('AJAX error:', textStatus, errorThrown);
+                    .fail(function () {
                         $('#dynamicFields').html(
                             '<div class="alert alert-danger">Ошибка загрузки полей.</div>'
                         );
@@ -225,60 +251,31 @@
                 $('#typeSelect').trigger('change');
             }
 
-            // Инициализация валидации
+            // Валидация формы
             $('#materialForm').validate({
                 rules: {
                     MaterialName: { required: true, minlength: 2 },
+                    Article: { required: true },
                     PricePerUnit: { required: true, min: 0.01 },
                     MinThreshold: { required: true, min: 1 },
                     ManufacturerId: { required: true },
                     TypeId: { required: true },
-                    Width: {
-                        required: function () {
-                            return $('#typeSelect').val() == '9';
-                        }
-                    },
-                    Density: {
-                        required: function () {
-                            return $('#typeSelect').val() == '9';
-                        }
-                    },
-                    Thickness: {
-                        required: function () {
-                            return $('#typeSelect').val() == '10';
-                        }
-                    },
-                    LengthPerSpool: {
-                        required: function () {
-                            return $('#typeSelect').val() == '10';
-                        }
-                    },
-                    ZipperType: {
-                        required: function () {
-                            return $('#typeSelect').val() == '11';
-                        }
-                    },
-                    ZipperLength: {
-                        required: function () {
-                            return $('#typeSelect').val() == '11';
-                        }
-                    },
-                    Shape: {
-                        required: function () {
-                            return $('#typeSelect').val() == '12';
-                        }
-                    },
-                    ButtonSize: {
-                        required: function () {
-                            return $('#typeSelect').val() == '12';
-                        }
-                    }
+                    SelectedColors: { required: true },
+                    Width: { required: '#typeSelect option:selected[value="9"]' },
+                    Density: { required: '#typeSelect option:selected[value="9"]' },
+                    Thickness: { required: '#typeSelect option:selected[value="10"]' },
+                    LengthPerSpool: { required: '#typeSelect option:selected[value="10"]' },
+                    ZipperType: { required: '#typeSelect option:selected[value="11"]' },
+                    ZipperLength: { required: '#typeSelect option:selected[value="11"]' },
+                    Shape: { required: '#typeSelect option:selected[value="12"]' },
+                    ButtonSize: { required: '#typeSelect option:selected[value="12"]' }
                 },
                 messages: {
                     MaterialName: {
                         required: "Пожалуйста, введите название материала",
                         minlength: "Название должно содержать минимум 2 символа"
                     },
+                    Article: "Пожалуйста, введите артикул",
                     PricePerUnit: {
                         required: "Пожалуйста, укажите цену",
                         min: "Цена должна быть больше 0"
@@ -289,6 +286,7 @@
                     },
                     ManufacturerId: "Пожалуйста, выберите производителя",
                     TypeId: "Пожалуйста, выберите тип материала",
+                    SelectedColors: "Пожалуйста, выберите хотя бы один цвет",
                     Width: "Пожалуйста, укажите ширину ткани",
                     Density: "Пожалуйста, укажите плотность ткани",
                     Thickness: "Пожалуйста, укажите толщину ниток",

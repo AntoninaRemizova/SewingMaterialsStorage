@@ -1,31 +1,106 @@
-﻿@model SewingMaterialsStorage.Models.Manufacturer
+﻿@model SewingMaterialsStorage.Models.Material
 
-@{
-    ViewData["Title"] = "Подробности о производителе";
-}
+<div class="container mt-4">
+    <h2 class="mb-4">Детали материала</h2>
 
-<div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h3 class="card-title"><i class="bi bi-info-circle"></i> @ViewData["Title"]</h3>
-    </div>
-    <div class="card-body">
-        <dl class="row">
-            <dt class="col-sm-3">Наименование:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.ManufacturerName)</dd>
-
-            <dt class="col-sm-3">Страна:</dt>
-            <dd class="col-sm-9">@Html.DisplayFor(model => model.Country.CountryName)</dd>
-        </dl>
-
-        <div class="d-flex justify-content-between mt-4">
-            <a asp-action="Index" class="btn btn-secondary">
-                <i class="bi bi-arrow-left"></i> Назад к списку
-            </a>
-            <div>
-                <a asp-action="Edit" asp-route-id="@Model.ManufacturerId" class="btn btn-warning">
-                    <i class="bi bi-pencil"></i> Редактировать
-                </a>
-            </div>
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <i class="bi bi-card-checklist"></i> Все характеристики
         </div>
+        <div class="card-body">
+            <dl class="row">
+                <!-- Основная информация -->
+                <dt class="col-sm-3">Наименование</dt>
+                <dd class="col-sm-9">@Model.MaterialName</dd>
+
+                <dt class="col-sm-3">Тип материала</dt>
+                <dd class="col-sm-9">@Model.MaterialType?.TypeName</dd>
+
+                <dt class="col-sm-3">Артикул</dt>
+                <dd class="col-sm-9">@(Model.Article ?? "не указан")</dd>
+
+                <dt class="col-sm-3">Цена за единицу</dt>
+                <dd class="col-sm-9">@Model.PricePerUnit.ToString("C")</dd>
+
+                <dt class="col-sm-3">Минимальный запас</dt>
+                <dd class="col-sm-9">@Model.MinThreshold</dd>
+
+                <dt class="col-sm-3">Производитель</dt>
+                <dd class="col-sm-9">@Model.Manufacturer?.ManufacturerName</dd>
+
+                <dt class="col-sm-3">Примечания</dt>
+                <dd class="col-sm-9">@(Model.Notes ?? "нет примечаний")</dd>
+
+                <!-- Цвета -->
+                <dt class="col-sm-3">Цвета</dt>
+                <dd class="col-sm-9">
+                    @if (Model.Colors.Any())
+                    {
+                        @string.Join(", ", Model.Colors.Select(c => c.Color.ColorName))
+                    }
+                    else
+                    {
+                        <span>не указаны</span>
+                    }
+                </dd>
+
+                <!-- Специфические характеристики -->
+                @switch (Model.TypeId)
+                {
+                    case 9: // Ткань
+                        <dt class="col-sm-3">Ширина</dt>
+                        <dd class="col-sm-9">@(Model.FabricDetails?.Width.ToString() ?? "не указана") см</dd>
+
+                        <dt class="col-sm-3">Плотность</dt>
+                        <dd class="col-sm-9">@(Model.FabricDetails?.Density.ToString() ?? "не указана") г/м²</dd>
+
+                        <dt class="col-sm-3">Состав</dt>
+                        <dd class="col-sm-9">
+                            @if (Model.Compositions.Any())
+                            {
+                                @string.Join(", ", Model.Compositions.Select(c => c.Composition.CompositionName))
+                            }
+                            else
+                            {
+                                <span>не указан</span>
+                            }
+                        </dd>
+                        break;
+
+                    case 10: // Нитки
+                        <dt class="col-sm-3">Толщина</dt>
+                        <dd class="col-sm-9">@(Model.ThreadDetails?.Thickness.ToString() ?? "не указана") мм</dd>
+
+                        <dt class="col-sm-3">Длина в катушке</dt>
+                        <dd class="col-sm-9">@(Model.ThreadDetails?.LengthPerSpool.ToString() ?? "не указана") м</dd>
+                        break;
+
+                    case 11: // Молния
+                        <dt class="col-sm-3">Тип молнии</dt>
+                        <dd class="col-sm-9">@(Model.ZipperDetails?.ZipperType ?? "не указан")</dd>
+
+                        <dt class="col-sm-3">Длина молнии</dt>
+                        <dd class="col-sm-9">@(Model.ZipperDetails?.ZipperLength.ToString() ?? "не указана") см</dd>
+                        break;
+
+                    case 12: // Пуговица
+                        <dt class="col-sm-3">Форма пуговицы</dt>
+                        <dd class="col-sm-9">@(Model.ButtonDetails?.Shape ?? "не указана")</dd>
+
+                        <dt class="col-sm-3">Размер пуговицы</dt>
+                        <dd class="col-sm-9">@(Model.ButtonDetails?.ButtonSize.ToString() ?? "не указан") мм</dd>
+                        break;
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Edit" asp-route-id="@Model.MaterialId" class="btn btn-primary">
+            <i class="bi bi-pencil"></i> Редактировать
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Назад к списку
+        </a>
     </div>
 </div>

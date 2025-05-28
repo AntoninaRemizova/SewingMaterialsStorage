@@ -34,12 +34,42 @@
                                 <td>@item.Material?.MaterialType?.TypeName</td>
                                 <td class="text-right">@item.Quantity</td>
                                 <td class="text-right">@((item.Quantity * item.Material?.PricePerUnit)?.ToString("C"))</td>
-                                <td class="text-right">
-                                    <a asp-action="Details" asp-route-id="@item.SupplyId"
-                                       class="btn btn-sm btn-outline-secondary">
-                                        <i class="bi bi-info-circle"></i>
-                                    </a>
+
+                                <!-- Кнопки действий -->
+                                <td class="text-end">
+                                    <div class="btn-group btn-group-sm"
+                                         role="group">
+
+                                        <!-- Кнопка подробностей -->
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.SupplyId"
+                                           class="btn btn-outline-info"
+                                           title="Подробности">
+                                            <i class="bi bi-info-circle"></i>
+                                            Подробнее
+                                        </a>
+
+                                        <!-- Кнопка редактирования -->
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.SupplyId"
+                                           class="btn btn-outline-primary"
+                                           title="Редактировать">
+                                            <i class="bi bi-pencil"></i>
+                                            Изменить
+                                        </a>
+
+                                        <!-- Кнопка удаления -->
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.SupplyId"
+                                           class="btn btn-outline-danger"
+                                           title="Удалить">
+                                            <i class="bi bi-trash"></i>
+                                            Удалить
+                                        </a>
+                                    </div>
                                 </td>
+                               
+                                
                             </tr>
                         }
                     </tbody>

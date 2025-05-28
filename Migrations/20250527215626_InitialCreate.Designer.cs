@@ -9,10 +9,10 @@ using SewingMaterialsStorage.Data;
 
 #nullable disable
 
-namespace SewingMaterialsStorage.Data.Migrations
+namespace SewingMaterialsStorage.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250510060735_InitialCreate")]
+    [Migration("20250527215626_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -200,7 +200,6 @@ namespace SewingMaterialsStorage.Data.Migrations
                         .HasColumnName("min_threshold");
 
                     b.Property<string>("Notes")
-                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("notes");
 
@@ -260,8 +259,7 @@ namespace SewingMaterialsStorage.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("color_id");
 
-                    b.HasKey("MaterialId", "ColorId")
-                        .HasName("material_colors_pkey");
+                    b.HasKey("MaterialId", "ColorId");
 
                     b.HasIndex("ColorId");
 
@@ -278,8 +276,7 @@ namespace SewingMaterialsStorage.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("composition_id");
 
-                    b.HasKey("MaterialId", "CompositionId")
-                        .HasName("material_compositions_pkey");
+                    b.HasKey("MaterialId", "CompositionId");
 
                     b.HasIndex("CompositionId");
 
@@ -467,7 +464,7 @@ namespace SewingMaterialsStorage.Data.Migrations
             modelBuilder.Entity("SewingMaterialsStorage.Models.MaterialColor", b =>
                 {
                     b.HasOne("SewingMaterialsStorage.Models.Color", "Color")
-                        .WithMany()
+                        .WithMany("MaterialColors")
                         .HasForeignKey("ColorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -488,7 +485,7 @@ namespace SewingMaterialsStorage.Data.Migrations
             modelBuilder.Entity("SewingMaterialsStorage.Models.MaterialComposition", b =>
                 {
                     b.HasOne("SewingMaterialsStorage.Models.Composition", "Composition")
-                        .WithMany()
+                        .WithMany("MaterialCompositions")
                         .HasForeignKey("CompositionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -552,6 +549,16 @@ namespace SewingMaterialsStorage.Data.Migrations
                         .HasConstraintName("supplies_material_id_fkey");
 
                     b.Navigation("Material");
+                });
+
+            modelBuilder.Entity("SewingMaterialsStorage.Models.Color", b =>
+                {
+                    b.Navigation("MaterialColors");
+                });
+
+            modelBuilder.Entity("SewingMaterialsStorage.Models.Composition", b =>
+                {
+                    b.Navigation("MaterialCompositions");
                 });
 
             modelBuilder.Entity("SewingMaterialsStorage.Models.Material", b =>
