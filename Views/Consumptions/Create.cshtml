@@ -1,42 +1,82 @@
-﻿@model SewingMaterialsStorage.Models.Consumption
+﻿@model SewingMaterialsStorage.ViewModels.ConsumptionViewModel
 
-@{
-    ViewData["Title"] = "Create";
-}
+<div class="container mt-4">
+    <h2>Добавить расход</h2>
+    <hr />
 
-<h1>Create</h1>
+    <form asp-action="Create" id="consumptionForm">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="MaterialId" class="control-label"></label>
+                    <select asp-for="MaterialId" asp-items="Model.Materials" class="form-control">
+                        <option value="">-- Выберите материал --</option>
+                    </select>
+                    <span asp-validation-for="MaterialId" class="text-danger"></span>
+                </div>
 
-<h4>Consumption</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="MaterialId" class="control-label"></label>
-                <select asp-for="MaterialId" class ="form-control" asp-items="ViewBag.MaterialId"></select>
-            </div>
-            <div class="form-group">
-                <label asp-for="Quantity" class="control-label"></label>
-                <input asp-for="Quantity" class="form-control" />
-                <span asp-validation-for="Quantity" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="OrderId" class="control-label"></label>
-                <input asp-for="OrderId" class="form-control" />
-                <span asp-validation-for="OrderId" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+                <div class="form-group">
+                    <label asp-for="Quantity" class="control-label"></label>
+                    <input asp-for="Quantity" class="form-control" />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
+                <div class="form-group">
+                    <label asp-for="ConsumptionDate" class="control-label"></label>
+                    <input asp-for="ConsumptionDate" type="date" class="form-control" />
+                    <span asp-validation-for="ConsumptionDate" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="OrderId" class="control-label"></label>
+                    <input asp-for="OrderId" class="form-control" />
+                    <span asp-validation-for="OrderId" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Сумма</label>
+                    <input id="totalAmount" class="form-control" readonly />
+                </div>
+
+                <div class="form-group mt-3">
+                    <input type="submit" value="Сохранить" class="btn btn-primary" />
+                    <a asp-action="Index" class="btn btn-secondary">Отмена</a>
+                </div>
+            </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        $(document).ready(function () {
+            // Получаем цену материала при изменении выбора
+            $('#MaterialId').change(function () {
+                calculateTotal();
+            });
+
+            // Пересчитываем сумму при изменении количества
+            $('#Quantity').keyup(function () {
+                calculateTotal();
+            });
+
+            function calculateTotal() {
+                var materialId = $('#MaterialId').val();
+                var quantity = $('#Quantity').val();
+
+                if (materialId && quantity) {
+                    $.get('/Consumptions/GetMaterialPrice', { id: materialId }, function (price) {
+                        var total = price * quantity;
+                        $('#totalAmount').val(total.toFixed(2) + ' руб.');
+                    });
+                } else {
+                    $('#totalAmount').val('');
+                }
+            }
+        });
+    </script>
 }

@@ -1,142 +1,169 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models;
+using SewingMaterialsStorage.ViewModels;
+
 
 namespace SewingMaterialsStorage.Controllers
 {
     public class ConsumptionsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly ILogger<MaterialsController> _logger;
 
-        public ConsumptionsController(ApplicationDbContext context)
+        public ConsumptionsController(ApplicationDbContext context, ILogger<MaterialsController> logger)
         {
             _context = context;
+            _logger = logger;
+        }
+
+        [HttpGet]
+        public async Task<decimal> GetMaterialPrice(int id)
+        {
+            var material = await _context.Materials.FindAsync(id);
+            return material?.PricePerUnit ?? 0;
         }
 
         // GET: Consumptions
         public async Task<IActionResult> Index()
         {
-            var applicationDbContext = _context.Consumptions.Include(c => c.Material);
-            return View(await applicationDbContext.ToListAsync());
-        }
-
-        // GET: Consumptions/Details/5
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var consumption = await _context.Consumptions
+            var consumptions = await _context.Consumptions
                 .Include(c => c.Material)
-                .FirstOrDefaultAsync(m => m.ConsumptionId == id);
-            if (consumption == null)
-            {
-                return NotFound();
-            }
+                .ThenInclude(m => m.MaterialType)
+                .OrderByDescending(c => c.ConsumptionDate)
+                .ToListAsync();
 
-            return View(consumption);
+            return View(consumptions);
         }
 
         // GET: Consumptions/Create
         public IActionResult Create()
         {
-            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "Article");
-            return View();
+            var viewModel = new ConsumptionViewModel
+            {
+                Materials = new SelectList(_context.Materials.Include(m => m.MaterialType),
+                                        "MaterialId", "MaterialName")
+            };
+            return View(viewModel);
         }
 
         // POST: Consumptions/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("ConsumptionId,MaterialId,ConsumptionDate,Quantity,OrderId")] Consumption consumption)
+        public async Task<IActionResult> Create(ConsumptionViewModel viewModel)
         {
             if (ModelState.IsValid)
             {
+                var material = await _context.Materials.FindAsync(viewModel.MaterialId);
+                if (material == null)
+                {
+                    ModelState.AddModelError("MaterialId", "Материал не найден");
+                    viewModel.Materials = new SelectList(_context.Materials, "MaterialId", "MaterialName");
+                    return View(viewModel);
+                }
+
+                var consumption = new Consumption
+                {
+                    MaterialId = viewModel.MaterialId,
+                    Quantity = viewModel.Quantity,
+                    ConsumptionDate = viewModel.ConsumptionDate,
+                    OrderId = viewModel.OrderId
+                };
+
                 _context.Add(consumption);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "Article", consumption.MaterialId);
-            return View(consumption);
+
+            viewModel.Materials = new SelectList(_context.Materials, "MaterialId", "MaterialName");
+            return View(viewModel);
         }
 
         // GET: Consumptions/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var consumption = await _context.Consumptions.FindAsync(id);
-            if (consumption == null)
+            if (consumption == null) return NotFound();
+
+            var material = await _context.Materials.FindAsync(consumption.MaterialId);
+
+            var viewModel = new ConsumptionViewModel
             {
-                return NotFound();
-            }
-            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "Article", consumption.MaterialId);
-            return View(consumption);
+                ConsumptionId = consumption.ConsumptionId,
+                MaterialId = consumption.MaterialId,
+                Quantity = consumption.Quantity,
+                ConsumptionDate = consumption.ConsumptionDate,
+                OrderId = consumption.OrderId,
+                TotalAmount = consumption.Quantity * material.PricePerUnit,
+                Materials = new SelectList(_context.Materials, "MaterialId", "MaterialName")
+            };
+
+            return View(viewModel);
         }
 
         // POST: Consumptions/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("ConsumptionId,MaterialId,ConsumptionDate,Quantity,OrderId")] Consumption consumption)
+        public async Task<IActionResult> Edit(int id, ConsumptionViewModel viewModel)
         {
-            if (id != consumption.ConsumptionId)
-            {
-                return NotFound();
-            }
+            if (id != viewModel.ConsumptionId) return NotFound();
 
             if (ModelState.IsValid)
             {
                 try
                 {
+                    var consumption = await _context.Consumptions.FindAsync(viewModel.ConsumptionId);
+                    if (consumption == null) return NotFound();
+
+                    consumption.MaterialId = viewModel.MaterialId;
+                    consumption.Quantity = viewModel.Quantity;
+                    consumption.ConsumptionDate = viewModel.ConsumptionDate.Date;
+                    consumption.OrderId = viewModel.OrderId;
+
                     _context.Update(consumption);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (Exception ex)
                 {
-                    if (!ConsumptionExists(consumption.ConsumptionId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    _logger.LogError(ex, "Ошибка при обновлении расхода");
+                    ModelState.AddModelError("", "Ошибка при сохранении изменений");
                 }
-                return RedirectToAction(nameof(Index));
             }
-            ViewData["MaterialId"] = new SelectList(_context.Materials, "MaterialId", "Article", consumption.MaterialId);
+
+            viewModel.Materials = new SelectList(_context.Materials, "MaterialId", "MaterialName", viewModel.MaterialId);
+            return View(viewModel);
+        }
+
+        // GET: Consumptions/Details/5
+        public async Task<IActionResult> Details(int? id)
+        {
+            if (id == null) return NotFound();
+
+            var consumption = await _context.Consumptions
+                .Include(c => c.Material)
+                .ThenInclude(m => m.MaterialType)
+                .FirstOrDefaultAsync(m => m.ConsumptionId == id);
+
+            if (consumption == null) return NotFound();
+
             return View(consumption);
         }
 
         // GET: Consumptions/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var consumption = await _context.Consumptions
                 .Include(c => c.Material)
                 .FirstOrDefaultAsync(m => m.ConsumptionId == id);
-            if (consumption == null)
-            {
-                return NotFound();
-            }
+
+            if (consumption == null) return NotFound();
 
             return View(consumption);
         }
@@ -150,9 +177,8 @@ namespace SewingMaterialsStorage.Controllers
             if (consumption != null)
             {
                 _context.Consumptions.Remove(consumption);
+                await _context.SaveChangesAsync();
             }
-
-            await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
