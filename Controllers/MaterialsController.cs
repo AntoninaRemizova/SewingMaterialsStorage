@@ -199,7 +199,7 @@ namespace SewingMaterialsStorage.Controllers
                 ManufacturerId = (int)material.ManufacturerId,
                 TypeId = material.TypeId,
                 SelectedColors = material.Colors.Select(c => c.ColorId).ToArray(),
-                SelectedCompositions = material.Compositions.Select(c => c.CompositionId).ToArray()
+                //SelectedCompositions = material.Compositions.Select(c => c.CompositionId).ToArray()
             };
 
             // Заполняем специфические поля в зависимости от типа
@@ -208,6 +208,7 @@ namespace SewingMaterialsStorage.Controllers
                 case 9: // Ткань
                     viewModel.Width = material.FabricDetails?.Width;
                     viewModel.Density = (int)material.FabricDetails?.Density;
+                    viewModel.SelectedCompositions = material.Compositions.Select(c => c.CompositionId).ToArray();
                     break;
                 case 10: // Нитки
                     viewModel.Thickness = material.ThreadDetails?.Thickness;

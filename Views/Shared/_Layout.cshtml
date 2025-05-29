@@ -13,6 +13,28 @@
             color: white !important;
             font-weight: 600 !important;
         }
+
+        @@media print {
+            body * {
+                visibility: hidden;
+            }
+
+            .card, .card * {
+                visibility: visible;
+            }
+
+            .card {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                border: none;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
 <body class="d-flex flex-column min-vh-100">
@@ -71,7 +93,7 @@
                             </a>
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="/reports/stock">Остатки</a></li>
-                                <li><a class="dropdown-item" href="/reports/movements">Движение</a></li>
+                                <li><a class="dropdown-item" href="/reports/movements">Расходы</a></li>
                             </ul>
                         </li>
                     </ul>

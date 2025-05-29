@@ -1,42 +1,37 @@
 ﻿@model SewingMaterialsStorage.Models.Manufacturer
 
-@{
-    ViewData["Title"] = "Добавить производителя";
-}
+<div class="container mt-4">
+    <h2>Добавить производителя</h2>
+    <hr />
 
-<div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h3 class="card-title"><i class="bi bi-plus-circle"></i> @ViewData["Title"]</h3>
-    </div>
-    <div class="card-body">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-            <div class="row mb-3">
-                <div class="col-md-6 mb-3">
-                    <label asp-for="ManufacturerName" class="form-label">Наименование производителя</label>
+    <form asp-action="Create">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="form-group">
+                    <label asp-for="ManufacturerName" class="control-label">Наименование производителя</label>
                     <input asp-for="ManufacturerName" class="form-control" placeholder="Введите название" />
                     <span asp-validation-for="ManufacturerName" class="text-danger"></span>
                 </div>
-                <div class="col-md-6 mb-3">
-                    <label asp-for="CountryId" class="form-label">Страна</label>
-                    <select asp-for="CountryId" class="form-select" asp-items="ViewBag.CountryId">
+
+                <div class="form-group">
+                    <label asp-for="CountryId" class="control-label">Страна</label>
+                    <select asp-for="CountryId" class="form-control" asp-items="ViewBag.CountryId">
                         <option value="">-- Выберите страну --</option>
                     </select>
                     <span asp-validation-for="CountryId" class="text-danger"></span>
                 </div>
-            </div>
 
-            <div class="d-flex justify-content-between mt-4">
-                <a asp-action="Index" class="btn btn-outline-secondary">
-                    <i class="bi bi-arrow-left"></i> Назад к списку
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="bi bi-save"></i> Сохранить
-                </button>
+                <div class="form-group mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-save"></i> Сохранить
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Назад к списку
+                    </a>
+                </div>
             </div>
-        </form>
-    </div>
+        </div>
+    </form>
 </div>
 
 @section Scripts {

@@ -17,7 +17,7 @@
         public int? Width { get; set; }
         public int? Density { get; set; }
 
-        public int[] SelectedCompositions { get; set; }
+        public int[]? SelectedCompositions { get; set; }
 
         // Поля для ниток
         public int? Thickness { get; set; }

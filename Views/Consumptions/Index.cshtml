@@ -38,17 +38,31 @@
                                 <td>@item.OrderId</td>
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm" role="group">
-                                        <a asp-action="Details" asp-route-id="@item.ConsumptionId"
-                                           class="btn btn-outline-info" title="Подробности">
+                                        <!-- Кнопка подробностей -->
+                                        <a asp-action="Details"
+                                           asp-route-id="@item.ConsumptionId"
+                                           class="btn btn-outline-info"
+                                           title="Подробности">
                                             <i class="bi bi-info-circle"></i>
+                                            Подробнее
                                         </a>
-                                        <a asp-action="Edit" asp-route-id="@item.ConsumptionId"
-                                           class="btn btn-outline-primary" title="Редактировать">
+
+                                        <!-- Кнопка редактирования -->
+                                        <a asp-action="Edit"
+                                           asp-route-id="@item.ConsumptionId"
+                                           class="btn btn-outline-primary"
+                                           title="Редактировать">
                                             <i class="bi bi-pencil"></i>
+                                            Изменить
                                         </a>
-                                        <a asp-action="Delete" asp-route-id="@item.ConsumptionId"
-                                           class="btn btn-outline-danger" title="Удалить">
+
+                                        <!-- Кнопка удаления -->
+                                        <a asp-action="Delete"
+                                           asp-route-id="@item.ConsumptionId"
+                                           class="btn btn-outline-danger"
+                                           title="Удалить">
                                             <i class="bi bi-trash"></i>
+                                            Удалить
                                         </a>
                                     </div>
                                 </td>

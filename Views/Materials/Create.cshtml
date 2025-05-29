@@ -27,7 +27,7 @@
         <!-- Основные данные -->
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
-                <i class="bi bi-info-circle"></i> Основная информация                
+                <i class="bi bi-info-circle"></i> Основная информация
             </div>
             <div class="card-body">
                 <div class="row g-3">
@@ -222,6 +222,69 @@
             });
         }
 
+        // Добавление правил валидации для динамических полей
+        function addDynamicValidationRules(typeId) {
+            var validator = $('#materialForm').validate();
+
+            // Удаляем предыдущие правила для динамических полей
+            validator.settings.rules.ZipperType = undefined;
+            validator.settings.rules.ZipperLength = undefined;
+            validator.settings.rules.Shape = undefined;
+            validator.settings.rules.ButtonSize = undefined;
+            validator.settings.rules.Thickness = undefined;
+            validator.settings.rules.LengthPerSpool = undefined;
+            validator.settings.rules.Width = undefined;
+            validator.settings.rules.Density = undefined;
+            validator.settings.rules.SelectedCompositions = undefined;
+
+            // Добавляем новые правила в зависимости от типа материала
+            if (typeId === '11') { // Молния
+                validator.settings.rules.ZipperType = { required: true };
+                validator.settings.rules.ZipperLength = { required: true, min: 1 };
+            } else if (typeId === '12') { // Пуговица
+                validator.settings.rules.Shape = { required: true };
+                validator.settings.rules.ButtonSize = { required: true, min: 1 };
+            } else if (typeId === '10') { // Нитки
+                validator.settings.rules.Thickness = { required: true, min: 1 };
+                validator.settings.rules.LengthPerSpool = { required: true, min: 1 };
+            } else if (typeId === '9') { // Ткань
+                validator.settings.rules.Width = { required: true, min: 1 };
+                validator.settings.rules.Density = { required: true, min: 1 };
+                validator.settings.rules.SelectedCompositions = { required: true };
+            }
+
+            // Обновляем сообщения об ошибках
+            validator.settings.messages = {
+                ZipperType: "Пожалуйста, выберите тип молнии",
+                ZipperLength: {
+                    required: "Пожалуйста, укажите длину молнии",
+                    min: "Длина должна быть положительным числом"
+                },
+                Shape: "Пожалуйста, выберите форму пуговицы",
+                ButtonSize: {
+                    required: "Пожалуйста, укажите размер пуговицы",
+                    min: "Размер должен быть положительным числом"
+                },
+                Thickness: {
+                    required: "Пожалуйста, укажите толщину ниток",
+                    min: "Толщина должна быть положительным числом"
+                },
+                LengthPerSpool: {
+                    required: "Пожалуйста, укажите длину ниток в катушке",
+                    min: "Длина должна быть положительным числом"
+                },
+                Width: {
+                    required: "Пожалуйста, укажите ширину ткани",
+                    min: "Ширина должна быть положительным числом"
+                },
+                Density: {
+                    required: "Пожалуйста, укажите плотность ткани",
+                    min: "Плотность должна быть положительным числом"
+                },
+                SelectedCompositions: "Пожалуйста, выберите хотя бы один состав"
+            };
+        }
+
         $(document).ready(function () {
             // Динамическая загрузка полей при изменении типа материала
             $('#typeSelect').change(function () {
@@ -238,6 +301,9 @@
                         form.removeData('validator');
                         form.removeData('unobtrusiveValidation');
                         $.validator.unobtrusive.parse(form);
+
+                        // Добавляем правила валидации для динамических полей
+                        addDynamicValidationRules(typeId);
                     })
                     .fail(function () {
                         $('#dynamicFields').html(
@@ -251,7 +317,7 @@
                 $('#typeSelect').trigger('change');
             }
 
-            // Валидация формы
+            // Базовая валидация формы
             $('#materialForm').validate({
                 rules: {
                     MaterialName: { required: true, minlength: 2 },
@@ -260,15 +326,7 @@
                     MinThreshold: { required: true, min: 1 },
                     ManufacturerId: { required: true },
                     TypeId: { required: true },
-                    SelectedColors: { required: true },
-                    Width: { required: '#typeSelect option:selected[value="9"]' },
-                    Density: { required: '#typeSelect option:selected[value="9"]' },
-                    Thickness: { required: '#typeSelect option:selected[value="10"]' },
-                    LengthPerSpool: { required: '#typeSelect option:selected[value="10"]' },
-                    ZipperType: { required: '#typeSelect option:selected[value="11"]' },
-                    ZipperLength: { required: '#typeSelect option:selected[value="11"]' },
-                    Shape: { required: '#typeSelect option:selected[value="12"]' },
-                    ButtonSize: { required: '#typeSelect option:selected[value="12"]' }
+                    SelectedColors: { required: true }
                 },
                 messages: {
                     MaterialName: {
@@ -286,15 +344,7 @@
                     },
                     ManufacturerId: "Пожалуйста, выберите производителя",
                     TypeId: "Пожалуйста, выберите тип материала",
-                    SelectedColors: "Пожалуйста, выберите хотя бы один цвет",
-                    Width: "Пожалуйста, укажите ширину ткани",
-                    Density: "Пожалуйста, укажите плотность ткани",
-                    Thickness: "Пожалуйста, укажите толщину ниток",
-                    LengthPerSpool: "Пожалуйста, укажите длину ниток в катушке",
-                    ZipperType: "Пожалуйста, выберите тип молнии",
-                    ZipperLength: "Пожалуйста, укажите длину молнии",
-                    Shape: "Пожалуйста, выберите форму пуговицы",
-                    ButtonSize: "Пожалуйста, укажите размер пуговицы"
+                    SelectedColors: "Пожалуйста, выберите хотя бы один цвет"
                 },
                 errorElement: 'span',
                 errorClass: 'text-danger small',

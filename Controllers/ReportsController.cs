@@ -1,17 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models.ViewModels;
+using SewingMaterialsStorage.ViewModels;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace SewingMaterialsStorage.Controllers
 {
     public class ReportsController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public ReportsController(ApplicationDbContext context)
+        private readonly ILogger<MaterialsController> _logger;
+        public ReportsController(ApplicationDbContext context, ILogger<MaterialsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // Отчет по остаткам
@@ -38,7 +44,7 @@ namespace SewingMaterialsStorage.Controllers
             return View(reportData);
         }
 
-        // Отчет по движению
+        // Отчет по движению (последние операции)
         public async Task<IActionResult> Movements()
         {
             var supplies = await _context.Supplies
@@ -96,6 +102,69 @@ namespace SewingMaterialsStorage.Controllers
                 .ToListAsync();
 
             return View(reportData);
+        }
+
+        // Отчет о расходах за период (новый отчет)
+        [HttpPost]
+        public async Task<IActionResult> ConsumptionReport(ConsumptionReportViewModel model)
+        {
+            _logger.LogInformation($"Start generating report from {model.StartDate} to {model.EndDate}");
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogWarning("Model state is invalid");
+                model.MaterialTypes = new SelectList(_context.MaterialTypes, "TypeId", "TypeName");
+                return View(model);
+            }
+
+            if (model.StartDate > model.EndDate)
+            {
+                _logger.LogWarning("Start date is after end date");
+                ModelState.AddModelError("", "Начальная дата не может быть позже конечной");
+                model.MaterialTypes = new SelectList(_context.MaterialTypes, "TypeId", "TypeName");
+                return View(model);
+            }
+
+            try
+            {
+                var query = _context.Consumptions
+                    .Include(c => c.Material)
+                    .ThenInclude(m => m.MaterialType)
+                    .Where(c => c.ConsumptionDate >= model.StartDate &&
+                               c.ConsumptionDate <= model.EndDate);
+
+                if (model.MaterialTypeId.HasValue)
+                {
+                    query = query.Where(c => c.Material.MaterialType.TypeId == model.MaterialTypeId.Value);
+                }
+
+                var consumptions = await query.ToListAsync();
+                _logger.LogInformation($"Found {consumptions.Count} consumption records");
+
+                model.Items = consumptions
+                    .GroupBy(c => new { c.Material.MaterialType.TypeName, c.Material.MaterialName, c.Material.PricePerUnit })
+                    .Select(g => new ConsumptionReportItem
+                    {
+                        MaterialType = g.Key.TypeName,
+                        MaterialName = g.Key.MaterialName,
+                        Quantity = g.Sum(c => c.Quantity),
+                        PricePerUnit = g.Key.PricePerUnit,
+                        TotalAmount = g.Sum(c => c.Quantity * g.Key.PricePerUnit)
+                    })
+                    .OrderBy(i => i.MaterialType)
+                    .ThenBy(i => i.MaterialName)
+                    .ToList();
+
+                _logger.LogInformation($"Generated {model.Items.Count} report items");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating consumption report");
+                ModelState.AddModelError("", "Произошла ошибка при формировании отчета");
+            }
+
+            model.MaterialTypes = new SelectList(_context.MaterialTypes, "TypeId", "TypeName", model.MaterialTypeId);
+            return View(model);
         }
     }
 }
