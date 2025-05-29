@@ -21,15 +21,56 @@ namespace SewingMaterialsStorage.Controllers
         }
 
         // GET: Materials
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(
+            string searchString,
+            int? typeId,
+            int? manufacturerId,
+            string sortOrder)
         {
-            var materials = await _context.Materials
+            ViewData["CurrentFilter"] = searchString;
+            ViewData["TypeFilter"] = typeId;
+            ViewData["ManufacturerFilter"] = manufacturerId;
+            ViewData["CurrentSort"] = sortOrder;
+
+            // Загружаем списки для фильтров
+            ViewBag.MaterialTypes = new SelectList(await _context.MaterialTypes.ToListAsync(), "TypeId", "TypeName");
+            ViewBag.Manufacturers = new SelectList(await _context.Manufacturers.ToListAsync(), "ManufacturerId", "ManufacturerName");
+
+            var materials = _context.Materials
                 .Include(m => m.MaterialType)
                 .Include(m => m.Manufacturer)
-                .Include(m => m.Colors).ThenInclude(mc => mc.Color)
-                .Include(m => m.Compositions).ThenInclude(mc => mc.Composition)
-                .ToListAsync();
-            return View(materials);
+                .AsQueryable();
+
+            // Применяем фильтры
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                materials = materials.Where(m => m.MaterialName.Contains(searchString) ||
+                                     (m.Article != null && m.Article.Contains(searchString)));
+            }
+
+            if (typeId.HasValue)
+            {
+                materials = materials.Where(m => m.TypeId == typeId.Value);
+            }
+
+            if (manufacturerId.HasValue)
+            {
+                materials = materials.Where(m => m.ManufacturerId == manufacturerId.Value);
+            }
+
+            // Сортировка
+            ViewData["NameSort"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
+            ViewData["PriceSort"] = sortOrder == "price" ? "price_desc" : "price";
+
+            materials = sortOrder switch
+            {
+                "name_desc" => materials.OrderByDescending(m => m.MaterialName),
+                "price" => materials.OrderBy(m => m.PricePerUnit),
+                "price_desc" => materials.OrderByDescending(m => m.PricePerUnit),
+                _ => materials.OrderBy(m => m.MaterialName)
+            };
+
+            return View(await materials.ToListAsync());
         }
 
         // GET: Materials/Details/5
