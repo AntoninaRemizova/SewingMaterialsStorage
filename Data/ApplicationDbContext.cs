@@ -26,7 +26,6 @@ namespace SewingMaterialsStorage.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Настройка имен таблиц (остается без изменений)
             modelBuilder.Entity<Material>().ToTable("materials");
             modelBuilder.Entity<MaterialType>().ToTable("material_types");
             modelBuilder.Entity<MaterialFabric>().ToTable("material_fabrics");
@@ -42,7 +41,6 @@ namespace SewingMaterialsStorage.Data
             modelBuilder.Entity<Supply>().ToTable("supplies");
             modelBuilder.Entity<Consumption>().ToTable("consumptions");
 
-            // Настройка MaterialType (без изменений)
             modelBuilder.Entity<MaterialType>(entity =>
             {
                 entity.HasKey(e => e.TypeId)
@@ -65,7 +63,6 @@ namespace SewingMaterialsStorage.Data
                     "type_name IN ('ткань', 'нитки', 'молния', 'пуговица')");
             });
 
-            // Настройка Material - изменена уникальность
             modelBuilder.Entity<Material>(entity =>
             {
                 entity.HasKey(e => e.MaterialId)
@@ -85,12 +82,10 @@ namespace SewingMaterialsStorage.Data
                     .HasMaxLength(50)
                     .IsRequired();
 
-                // Уникальность по сочетанию названия и артикула
                 entity.HasIndex(e => new { e.MaterialName, e.Article })
                     .IsUnique()
                     .HasDatabaseName("ix_materials_name_article_unique");
 
-                // Остальные свойства без изменений
                 entity.Property(e => e.PricePerUnit)
                     .HasColumnName("price_per_unit")
                     .HasColumnType("integer")
@@ -128,7 +123,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Настройка MaterialFabric - поля необязательные
             modelBuilder.Entity<MaterialFabric>(entity =>
             {
                 entity.HasKey(e => e.MaterialId)
@@ -141,12 +135,12 @@ namespace SewingMaterialsStorage.Data
                 entity.Property(e => e.Width)
                     .HasColumnName("width")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.Property(e => e.Density)
                     .HasColumnName("density")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.HasOne(mf => mf.Material)
                     .WithOne(m => m.FabricDetails)
@@ -155,7 +149,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Настройка MaterialThread - поля необязательные
             modelBuilder.Entity<MaterialThread>(entity =>
             {
                 entity.HasKey(e => e.MaterialId)
@@ -168,12 +161,12 @@ namespace SewingMaterialsStorage.Data
                 entity.Property(e => e.Thickness)
                     .HasColumnName("thickness")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.Property(e => e.LengthPerSpool)
                     .HasColumnName("length_per_spool")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.HasOne(mt => mt.Material)
                     .WithOne(m => m.ThreadDetails)
@@ -182,7 +175,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Настройка MaterialZipper - поля необязательные
             modelBuilder.Entity<MaterialZipper>(entity =>
             {
                 entity.HasKey(e => e.MaterialId)
@@ -195,12 +187,12 @@ namespace SewingMaterialsStorage.Data
                 entity.Property(e => e.ZipperType)
                     .HasColumnName("zipper_type")
                     .HasMaxLength(50)
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.Property(e => e.ZipperLength)
                     .HasColumnName("zipper_length")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.HasOne(mz => mz.Material)
                     .WithOne(m => m.ZipperDetails)
@@ -209,7 +201,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Настройка MaterialButton - поля необязательные
             modelBuilder.Entity<MaterialButton>(entity =>
             {
                 entity.HasKey(e => e.MaterialId)
@@ -222,12 +213,12 @@ namespace SewingMaterialsStorage.Data
                 entity.Property(e => e.Shape)
                     .HasColumnName("shape")
                     .HasMaxLength(50)
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.Property(e => e.ButtonSize)
                     .HasColumnName("button_size")
                     .HasColumnType("integer")
-                    .IsRequired(false); // Необязательное
+                    .IsRequired(false);
 
                 entity.HasOne(mb => mb.Material)
                     .WithOne(m => m.ButtonDetails)
@@ -236,7 +227,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Настройка MaterialComposition - связь необязательная
             modelBuilder.Entity<MaterialComposition>(entity =>
             {
                 entity.HasKey(e => new { e.MaterialId, e.CompositionId })
@@ -258,7 +248,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Настройка Manufacturer
             modelBuilder.Entity<Manufacturer>(entity =>
             {
                 entity.HasKey(e => e.ManufacturerId)
@@ -281,15 +270,13 @@ namespace SewingMaterialsStorage.Data
                     .HasColumnName("country_id")
                     .IsRequired();
 
-                // Исправленная конфигурация связи
-                entity.HasOne(m => m.Country)  
-                    .WithMany()              
-                    .HasForeignKey(m => m.CountryId)  
+                entity.HasOne(m => m.Country)
+                    .WithMany()
+                    .HasForeignKey(m => m.CountryId)
                     .HasConstraintName("manufacturers_country_id_fkey")
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Настройка Country
             modelBuilder.Entity<Country>(entity =>
             {
                 entity.HasKey(e => e.CountryId)
@@ -309,7 +296,6 @@ namespace SewingMaterialsStorage.Data
                     .HasDatabaseName("countries_country_name_key");
             });
 
-            // Настройка Color
             modelBuilder.Entity<Color>(entity =>
             {
                 entity.HasKey(e => e.ColorId)
@@ -329,7 +315,6 @@ namespace SewingMaterialsStorage.Data
                     .HasDatabaseName("colors_color_name_key");
             });
 
-            // Настройка Composition
             modelBuilder.Entity<Composition>(entity =>
             {
                 entity.HasKey(e => e.CompositionId)
@@ -349,7 +334,6 @@ namespace SewingMaterialsStorage.Data
                     .HasDatabaseName("compositions_composition_name_key");
             });
 
-            // Настройка MaterialColor
             modelBuilder.Entity<MaterialColor>(entity =>
             {
                 entity.HasKey(e => new { e.MaterialId, e.ColorId });
@@ -364,13 +348,12 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mc => mc.Color)
-                    .WithMany(c => c.MaterialColors)  // Добавьте коллекцию в модель Color
+                    .WithMany(c => c.MaterialColors)
                     .HasForeignKey(mc => mc.ColorId)
                     .HasConstraintName("material_colors_color_id_fkey")
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
-            // Настройка MaterialComposition
             modelBuilder.Entity<MaterialComposition>(entity =>
             {
                 entity.HasKey(e => new { e.MaterialId, e.CompositionId });
@@ -385,13 +368,12 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity.HasOne(mc => mc.Composition)
-                    .WithMany(c => c.MaterialCompositions) 
+                    .WithMany(c => c.MaterialCompositions)
                     .HasForeignKey(mc => mc.CompositionId)
                     .HasConstraintName("material_compositions_composition_id_fkey")
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Настройка Supply
             modelBuilder.Entity<Supply>(entity =>
             {
                 entity.HasKey(e => e.SupplyId)
@@ -423,7 +405,6 @@ namespace SewingMaterialsStorage.Data
                     .OnDelete(DeleteBehavior.Restrict);
             });
 
-            // Настройка Consumption
             modelBuilder.Entity<Consumption>(entity =>
             {
                 entity.HasKey(e => e.ConsumptionId)

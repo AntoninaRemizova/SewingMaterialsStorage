@@ -4,7 +4,7 @@
     ViewData["Title"] = "Цвета";
 }
 
-<!-- Заголовок страницы с кнопкой добавления -->
+
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h1>
         <i class="bi bi-palette"></i>
@@ -24,12 +24,11 @@
     </a>
 </div>
 
-<!-- Основная карточка с таблицей -->
+
 <div class="card shadow-sm">
     <div class="card-body">
         <div class="table-responsive">
 
-            <!-- Таблица цветов -->
             <table class="table table-hover">
                 <thead class="thead-light">
                     <tr>
@@ -42,17 +41,17 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <!-- Название цвета -->
+                            
                             <td>
                                 @item.ColorName
                             </td>
 
-                            <!-- Кнопки действий -->
+                            
                             <td class="text-end">
                                 <div class="btn-group btn-group-sm"
                                      role="group">
 
-                                    <!-- Кнопка редактирования -->
+                          
                                     <a asp-action="Edit"
                                        asp-route-id="@item.ColorId"
                                        class="btn btn-outline-primary"
@@ -61,7 +60,7 @@
                                         Изменить
                                     </a>
 
-                                    <!-- Кнопка удаления -->
+                                
                                     <a asp-action="Delete"
                                        asp-route-id="@item.ColorId"
                                        class="btn btn-outline-danger"

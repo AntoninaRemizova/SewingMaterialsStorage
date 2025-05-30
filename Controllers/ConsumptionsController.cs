@@ -5,7 +5,6 @@ using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models;
 using SewingMaterialsStorage.ViewModels;
 
-
 namespace SewingMaterialsStorage.Controllers
 {
     public class ConsumptionsController : Controller

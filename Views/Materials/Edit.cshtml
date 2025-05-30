@@ -17,7 +17,7 @@
     <form asp-action="Edit" method="post" id="materialForm">
         <input type="hidden" asp-for="MaterialId" />
 
-        <!-- Основные данные -->
+    
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-info-circle"></i> Основная информация
@@ -64,7 +64,7 @@
             </div>
         </div>
 
-        <!-- Производитель -->
+     
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-building"></i> Производитель
@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <!-- Цвета -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-palette"></i> Цвета
@@ -123,7 +123,7 @@
             </div>
         </div>
 
-        <!-- Специфические характеристики -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-tags"></i> Спецификация
@@ -287,7 +287,7 @@
         }
 
         $(document).ready(function () {
-            // Динамическая загрузка характеристик при изменении типа материала
+  
             $('#typeSelect').change(function () {
                 const typeId = $(this).val();
                 $('#dynamicFields').empty();
@@ -308,7 +308,7 @@
                     });
             });
 
-            // Инициализация при загрузке страницы
+
             if ($('#typeSelect').val()) {
                 $('#typeSelect').trigger('change');
             }

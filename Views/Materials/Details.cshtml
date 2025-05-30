@@ -9,7 +9,7 @@
         </div>
         <div class="card-body">
             <dl class="row">
-                <!-- Основная информация -->
+
                 <dt class="col-sm-3">Наименование</dt>
                 <dd class="col-sm-9">@Model.MaterialName</dd>
 
@@ -31,7 +31,7 @@
                 <dt class="col-sm-3">Примечания</dt>
                 <dd class="col-sm-9">@(Model.Notes ?? "нет примечаний")</dd>
 
-                <!-- Цвета -->
+    
                 <dt class="col-sm-3">Цвета</dt>
                 <dd class="col-sm-9">
                     @if (Model.Colors.Any())
@@ -44,7 +44,6 @@
                     }
                 </dd>
 
-                <!-- Специфические характеристики -->
                 @switch (Model.TypeId)
                 {
                     case 9: // Ткань

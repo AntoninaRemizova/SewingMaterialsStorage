@@ -13,9 +13,9 @@
     </div>
 </div>
 
-<!-- Статистика материалов -->
+
 <div class="row g-3 mb-4">
-    <!-- Общая карточка -->
+  
     <div class="col-12 col-md-6 col-xl-3">
         <div class="card text-bg-primary h-100">
             <div class="card-body">
@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <!-- Унифицированные карточки -->
+
     @{
         var materialCards = new[] {
     new { Title = "Ткани", Count = Model.FabricCount, Icon = "scissors", Bg = "success" },
@@ -57,9 +57,9 @@
     }
 </div>
 
-<!-- Последние операции -->
+
 <div class="row mt-2">
-    <!-- Последние поступления -->
+  
     <div class="col-md-6">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
@@ -107,7 +107,7 @@
         </div>
     </div>
 
-    <!-- Последние расходы -->
+
     <div class="col-md-6">
         <div class="card shadow-sm mb-4">
             <div class="card-header bg-primary text-white">
@@ -156,7 +156,7 @@
     </div>
 </div>
 
-<!-- Дефицитные материалы -->
+
 <div class="card shadow-sm mb-4">
     <div class="card-header bg-warning text-dark">
         <h5 class="mb-0"><i class="bi bi-exclamation-triangle"></i> Материалы ниже минимального уровня</h5>

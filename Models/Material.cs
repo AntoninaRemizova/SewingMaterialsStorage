@@ -1,6 +1,4 @@
-﻿// Material.cs
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace SewingMaterialsStorage.Models
 {
@@ -24,6 +22,7 @@ namespace SewingMaterialsStorage.Models
 
         [Required(ErrorMessage = "Выберите производителя")]
         public int? ManufacturerId { get; set; }
+
         public string? Notes { get; set; }
         public string Article { get; set; }
 
@@ -43,7 +42,6 @@ namespace SewingMaterialsStorage.Models
 
         public List<Supply> Supplies { get; set; }
         public List<Consumption> Consumptions { get; set; }
-
 
         public ICollection<MaterialColor> Colors { get; set; } = new List<MaterialColor>();
         public ICollection<MaterialComposition> Compositions { get; set; } = new List<MaterialComposition>();

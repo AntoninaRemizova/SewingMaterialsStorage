@@ -44,13 +44,10 @@ namespace SewingMaterialsStorage.Controllers
                     .Take(5)
                     .ToListAsync(),
 
-                // Расчет дефицитных материалов
                 LowStockCount = await CalculateLowStockCount(),
 
-                // Расчет общей стоимости инвентаря
                 TotalInventoryValue = await CalculateTotalInventoryValue(),
 
-                // Материалы ниже минимального уровня
                 MaterialsBelowThreshold = await CalculateMaterialsBelowThreshold()
             };
 

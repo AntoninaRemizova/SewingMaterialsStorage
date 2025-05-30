@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SewingMaterialsStorage.Data;
@@ -24,6 +23,7 @@ namespace SewingMaterialsStorage.Controllers
         {
             return View(new ExcelImportViewModel { ImportType = ImportType.Compositions });
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Import(ExcelImportViewModel model)
@@ -47,7 +47,6 @@ namespace SewingMaterialsStorage.Controllers
                         int updatedCount = 0;
                         int skippedCount = 0;
 
-                        // Получаем все существующие составы для быстрого поиска
                         var existingCompositions = await _context.Compositions
                             .ToDictionaryAsync(c => c.CompositionName, c => c);
 
@@ -63,17 +62,14 @@ namespace SewingMaterialsStorage.Controllers
 
                             if (existingCompositions.TryGetValue(compositionName, out var existingComposition))
                             {
-                                // Состав уже существует - можно обновить, если есть другие поля
-                                // В данном случае просто пропускаем, так как обновлять нечего
                                 skippedCount++;
                             }
                             else
                             {
-                                // Новый состав - добавляем
                                 var newComposition = new Composition { CompositionName = compositionName };
                                 _context.Compositions.Add(newComposition);
                                 addedCount++;
-                                existingCompositions.Add(compositionName, newComposition); // Добавляем в словарь
+                                existingCompositions.Add(compositionName, newComposition);
                             }
                         }
 
@@ -98,7 +94,7 @@ namespace SewingMaterialsStorage.Controllers
             return View(await _context.Compositions.ToListAsync());
         }
 
-        // GET: Compositions/GetCompositionsForSelect - новый метод для Select2
+        // GET: Compositions/GetCompositionsForSelect
         [HttpGet]
         public async Task<IActionResult> GetCompositionsForSelect()
         {
@@ -135,7 +131,7 @@ namespace SewingMaterialsStorage.Controllers
         // POST: Compositions/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Composition composition) 
+        public async Task<IActionResult> Create(Composition composition)
         {
             if (ModelState.IsValid)
             {

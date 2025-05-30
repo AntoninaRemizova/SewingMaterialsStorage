@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using OfficeOpenXml;
 using SewingMaterialsStorage.Data;
@@ -13,7 +12,7 @@ namespace SewingMaterialsStorage.Controllers
         private readonly ApplicationDbContext _context;
         private readonly ILogger<MaterialsController> _logger;
 
-        public ColorsController(ApplicationDbContext context,ILogger<MaterialsController> logger)
+        public ColorsController(ApplicationDbContext context, ILogger<MaterialsController> logger)
         {
             _context = context;
             _logger = logger;
@@ -48,7 +47,6 @@ namespace SewingMaterialsStorage.Controllers
                         int updatedCount = 0;
                         int skippedCount = 0;
 
-                        // Получаем все существующие цвета для быстрого поиска
                         var existingColors = await _context.Colors.ToDictionaryAsync(c => c.ColorName, c => c);
 
                         for (int row = 2; row <= rowCount; row++)
@@ -63,17 +61,14 @@ namespace SewingMaterialsStorage.Controllers
 
                             if (existingColors.TryGetValue(colorName, out var existingColor))
                             {
-                                // Цвет уже существует - можно обновить, если есть другие поля
-                                // В данном случае просто пропускаем, так как обновлять нечего
                                 skippedCount++;
                             }
                             else
                             {
-                                // Новый цвет - добавляем
                                 var newColor = new Color { ColorName = colorName };
                                 _context.Colors.Add(newColor);
                                 addedCount++;
-                                existingColors.Add(colorName, newColor); // Добавляем в словарь для последующих проверок
+                                existingColors.Add(colorName, newColor);
                             }
                         }
 
@@ -98,7 +93,7 @@ namespace SewingMaterialsStorage.Controllers
             return View(await _context.Colors.ToListAsync());
         }
 
-        // GET: Colors/GetColorsForSelect 
+        // GET: Colors/GetColorsForSelect
         [HttpGet]
         public async Task<IActionResult> GetColorsForSelect()
         {
@@ -107,6 +102,7 @@ namespace SewingMaterialsStorage.Controllers
                 .ToListAsync();
             return Json(colors);
         }
+
         // GET: Colors/Details/5
         public async Task<IActionResult> Details(int? id)
         {
@@ -133,7 +129,7 @@ namespace SewingMaterialsStorage.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(Color color) 
+        public async Task<IActionResult> Create(Color color)
         {
             if (ModelState.IsValid)
             {
@@ -216,7 +212,7 @@ namespace SewingMaterialsStorage.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var color = await _context.Colors
-                .Include(c => c.MaterialColors) // Загружаем связанные записи
+                .Include(c => c.MaterialColors)
                 .FirstOrDefaultAsync(c => c.ColorId == id);
 
             if (color == null)
@@ -224,10 +220,8 @@ namespace SewingMaterialsStorage.Controllers
                 return NotFound();
             }
 
-            // Удаляем сначала связанные записи
             _context.MaterialColors.RemoveRange(color.MaterialColors);
 
-            // Затем удаляем сам цвет
             _context.Colors.Remove(color);
 
             await _context.SaveChangesAsync();

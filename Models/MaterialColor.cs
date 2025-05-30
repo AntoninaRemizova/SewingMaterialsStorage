@@ -2,10 +2,10 @@
 {
     public class MaterialColor
     {
-        public int MaterialId { get; set; }  // Внешний ключ для Material
+        public int MaterialId { get; set; }
         public Material Material { get; set; }
 
-        public int ColorId { get; set; }     // Внешний ключ для Color
+        public int ColorId { get; set; }
         public Color Color { get; set; }
     }
 }

@@ -37,11 +37,9 @@ namespace SewingMaterialsStorage.Controllers
                 var importService = new CountryImportService();
                 var countries = importService.ImportCountriesFromExcel(filePath);
 
-                // Очищаем старые данные (опционально)
                 _context.Countries.RemoveRange(_context.Countries);
                 await _context.SaveChangesAsync();
 
-                // Добавляем новые
                 await _context.Countries.AddRangeAsync(countries);
                 await _context.SaveChangesAsync();
 

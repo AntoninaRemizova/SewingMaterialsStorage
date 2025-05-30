@@ -32,7 +32,6 @@ namespace SewingMaterialsStorage.Controllers
             ViewData["ManufacturerFilter"] = manufacturerId;
             ViewData["CurrentSort"] = sortOrder;
 
-            // Загружаем списки для фильтров
             ViewBag.MaterialTypes = new SelectList(await _context.MaterialTypes.ToListAsync(), "TypeId", "TypeName");
             ViewBag.Manufacturers = new SelectList(await _context.Manufacturers.ToListAsync(), "ManufacturerId", "ManufacturerName");
 
@@ -41,7 +40,6 @@ namespace SewingMaterialsStorage.Controllers
                 .Include(m => m.Manufacturer)
                 .AsQueryable();
 
-            // Применяем фильтры
             if (!string.IsNullOrEmpty(searchString))
             {
                 materials = materials.Where(m => m.MaterialName.Contains(searchString) ||
@@ -58,7 +56,6 @@ namespace SewingMaterialsStorage.Controllers
                 materials = materials.Where(m => m.ManufacturerId == manufacturerId.Value);
             }
 
-            // Сортировка
             ViewData["NameSort"] = string.IsNullOrEmpty(sortOrder) ? "name_desc" : "";
             ViewData["PriceSort"] = sortOrder == "price" ? "price_desc" : "price";
 
@@ -111,7 +108,6 @@ namespace SewingMaterialsStorage.Controllers
             {
                 try
                 {
-                    // Создаем основной материал
                     var material = new Material
                     {
                         MaterialName = viewModel.MaterialName,
@@ -126,7 +122,6 @@ namespace SewingMaterialsStorage.Controllers
                     _context.Add(material);
                     await _context.SaveChangesAsync();
 
-                    // Добавляем цвета
                     if (viewModel.SelectedColors != null)
                     {
                         foreach (var colorId in viewModel.SelectedColors)
@@ -139,7 +134,6 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Добавляем составы (только для тканей)
                     if (viewModel.SelectedCompositions != null && viewModel.TypeId == 9)
                     {
                         foreach (var compositionId in viewModel.SelectedCompositions)
@@ -152,7 +146,6 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Добавляем специфические данные
                     switch (viewModel.TypeId)
                     {
                         case 9: // Ткань
@@ -163,6 +156,7 @@ namespace SewingMaterialsStorage.Controllers
                                 Density = viewModel.Density ?? 0
                             });
                             break;
+
                         case 10: // Нитки
                             _context.MaterialThreads.Add(new MaterialThread
                             {
@@ -171,6 +165,7 @@ namespace SewingMaterialsStorage.Controllers
                                 LengthPerSpool = viewModel.LengthPerSpool ?? 0
                             });
                             break;
+
                         case 11: // Молния
                             _context.MaterialZippers.Add(new MaterialZipper
                             {
@@ -179,6 +174,7 @@ namespace SewingMaterialsStorage.Controllers
                                 ZipperLength = viewModel.ZipperLength ?? 0
                             });
                             break;
+
                         case 12: // Пуговица
                             _context.MaterialButtons.Add(new MaterialButton
                             {
@@ -201,7 +197,6 @@ namespace SewingMaterialsStorage.Controllers
             }
             else
             {
-                // Логирование ошибок валидации
                 var errors = ModelState.SelectMany(x => x.Value.Errors.Select(e => $"{x.Key}: {e.ErrorMessage}"));
                 _logger.LogError("Ошибки валидации: " + string.Join("; ", errors));
             }
@@ -211,7 +206,6 @@ namespace SewingMaterialsStorage.Controllers
             ViewBag.AllCompositions = await _context.Compositions.ToListAsync();
             return View(viewModel);
         }
-
 
         // GET: Materials/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -243,7 +237,6 @@ namespace SewingMaterialsStorage.Controllers
                 //SelectedCompositions = material.Compositions.Select(c => c.CompositionId).ToArray()
             };
 
-            // Заполняем специфические поля в зависимости от типа
             switch (material.TypeId)
             {
                 case 9: // Ткань
@@ -251,14 +244,17 @@ namespace SewingMaterialsStorage.Controllers
                     viewModel.Density = (int)material.FabricDetails?.Density;
                     viewModel.SelectedCompositions = material.Compositions.Select(c => c.CompositionId).ToArray();
                     break;
+
                 case 10: // Нитки
                     viewModel.Thickness = material.ThreadDetails?.Thickness;
                     viewModel.LengthPerSpool = material.ThreadDetails?.LengthPerSpool;
                     break;
+
                 case 11: // Молния
                     viewModel.ZipperType = material.ZipperDetails?.ZipperType;
                     viewModel.ZipperLength = material.ZipperDetails?.ZipperLength;
                     break;
+
                 case 12: // Пуговица
                     viewModel.Shape = material.ButtonDetails?.Shape;
                     viewModel.ButtonSize = (int)material.ButtonDetails?.ButtonSize;
@@ -283,7 +279,6 @@ namespace SewingMaterialsStorage.Controllers
             {
                 try
                 {
-                    // Обновляем основной материал
                     var material = await _context.Materials
                         .Include(m => m.FabricDetails)
                         .Include(m => m.ThreadDetails)
@@ -301,7 +296,6 @@ namespace SewingMaterialsStorage.Controllers
                     material.ManufacturerId = viewModel.ManufacturerId;
                     material.TypeId = viewModel.TypeId;
 
-                    // Обновляем цвета
                     _context.MaterialColors.RemoveRange(material.Colors);
                     if (viewModel.SelectedColors != null)
                     {
@@ -315,7 +309,6 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Обновляем составы (только для тканей)
                     _context.MaterialCompositions.RemoveRange(material.Compositions);
                     if (viewModel.SelectedCompositions != null)
                     {
@@ -329,7 +322,6 @@ namespace SewingMaterialsStorage.Controllers
                         }
                     }
 
-                    // Обновляем специфические данные
                     switch (viewModel.TypeId)
                     {
                         case 9: // Ткань
@@ -341,6 +333,7 @@ namespace SewingMaterialsStorage.Controllers
                             material.FabricDetails.Width = viewModel.Width.Value;
                             material.FabricDetails.Density = viewModel.Density.Value;
                             break;
+
                         case 10: // Нитки
                             if (material.ThreadDetails == null)
                             {
@@ -350,6 +343,7 @@ namespace SewingMaterialsStorage.Controllers
                             material.ThreadDetails.Thickness = viewModel.Thickness.Value;
                             material.ThreadDetails.LengthPerSpool = viewModel.LengthPerSpool.Value;
                             break;
+
                         case 11: // Молния
                             if (material.ZipperDetails == null)
                             {
@@ -359,6 +353,7 @@ namespace SewingMaterialsStorage.Controllers
                             material.ZipperDetails.ZipperType = viewModel.ZipperType;
                             material.ZipperDetails.ZipperLength = viewModel.ZipperLength.Value;
                             break;
+
                         case 12: // Пуговица
                             if (material.ButtonDetails == null)
                             {
@@ -427,7 +422,6 @@ namespace SewingMaterialsStorage.Controllers
             using var transaction = await _context.Database.BeginTransactionAsync();
             try
             {
-                // Удаляем связанные данные
                 if (material.FabricDetails != null)
                     _context.MaterialFabrics.Remove(material.FabricDetails);
                 if (material.ThreadDetails != null)
@@ -487,7 +481,6 @@ namespace SewingMaterialsStorage.Controllers
             {
                 var viewModel = new MaterialViewModel { TypeId = typeId };
 
-                // Для типа "Ткань" загружаем составы
                 if (typeId == 9)
                 {
                     ViewBag.AllCompositions = _context.Compositions.ToList();

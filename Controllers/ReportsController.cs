@@ -4,9 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models.ViewModels;
 using SewingMaterialsStorage.ViewModels;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace SewingMaterialsStorage.Controllers
 {
@@ -20,7 +17,6 @@ namespace SewingMaterialsStorage.Controllers
             _logger = logger;
         }
 
-        // Отчет по остаткам
         public async Task<IActionResult> Stock()
         {
             var reportData = await _context.Materials
@@ -44,7 +40,6 @@ namespace SewingMaterialsStorage.Controllers
             return View(reportData);
         }
 
-        // Отчет по движению (последние операции)
         public async Task<IActionResult> Movements()
         {
             var supplies = await _context.Supplies
@@ -82,7 +77,6 @@ namespace SewingMaterialsStorage.Controllers
             return View(combined);
         }
 
-        // Отчет по материалам ниже минимального уровня
         public async Task<IActionResult> LowStock()
         {
             var reportData = await _context.Materials
@@ -104,7 +98,6 @@ namespace SewingMaterialsStorage.Controllers
             return View(reportData);
         }
 
-        // Отчет о расходах за период (новый отчет)
         [HttpPost]
         public async Task<IActionResult> ConsumptionReport(ConsumptionReportViewModel model)
         {

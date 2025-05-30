@@ -60,7 +60,6 @@ namespace SewingMaterialsStorage.Controllers
             {
                 try
                 {
-                    // Добавьте лог для проверки получаемых данных
                     Console.WriteLine($"Создание производителя: {manufacturer.ManufacturerName}, CountryId: {manufacturer.CountryId}");
 
                     _context.Add(manufacturer);
@@ -69,13 +68,11 @@ namespace SewingMaterialsStorage.Controllers
                 }
                 catch (Exception ex)
                 {
-                    // Улучшенное логирование ошибок
                     Console.WriteLine($"Ошибка при сохранении: {ex.Message}\n{ex.StackTrace}");
                     ModelState.AddModelError("", $"Ошибка при сохранении: {ex.Message}");
                 }
             }
 
-            // Важно: повторно заполняем SelectList при ошибке
             ViewData["CountryId"] = new SelectList(
                 _context.Countries,
                 "CountryId",

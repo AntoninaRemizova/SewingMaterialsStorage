@@ -54,12 +54,12 @@
 
     <script>
         $(document).ready(function () {
-            // Получаем цену материала при изменении выбора
+           
             $('#MaterialId').change(function () {
                 calculateTotal();
             });
 
-            // Пересчитываем сумму при изменении количества
+       
             $('#Quantity').keyup(function () {
                 calculateTotal();
             });

@@ -35,12 +35,12 @@
                                 <td class="text-right">@item.Quantity</td>
                                 <td class="text-right">@((item.Quantity * item.Material?.PricePerUnit)?.ToString("C"))</td>
 
-                                <!-- Кнопки действий -->
+                            
                                 <td class="text-end">
                                     <div class="btn-group btn-group-sm"
                                          role="group">
 
-                                        <!-- Кнопка подробностей -->
+                                       
                                         <a asp-action="Details"
                                            asp-route-id="@item.SupplyId"
                                            class="btn btn-outline-info"
@@ -49,7 +49,7 @@
                                             Подробнее
                                         </a>
 
-                                        <!-- Кнопка редактирования -->
+                                   
                                         <a asp-action="Edit"
                                            asp-route-id="@item.SupplyId"
                                            class="btn btn-outline-primary"
@@ -58,7 +58,7 @@
                                             Изменить
                                         </a>
 
-                                        <!-- Кнопка удаления -->
+                                     
                                         <a asp-action="Delete"
                                            asp-route-id="@item.SupplyId"
                                            class="btn btn-outline-danger"

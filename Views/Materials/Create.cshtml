@@ -6,7 +6,7 @@
 <div class="container mt-4">
     <h2 class="mb-4">@ViewData["Title"]</h2>
 
-    <!-- Сообщения об успехе/ошибке -->
+
     @if (TempData["SuccessMessage"] != null)
     {
         <div class="alert alert-success alert-dismissible fade show">
@@ -24,7 +24,7 @@
     }
 
     <form asp-action="Create" method="post" id="materialForm">
-        <!-- Основные данные -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-info-circle"></i> Основная информация
@@ -74,7 +74,7 @@
             </div>
         </div>
 
-        <!-- Производитель -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-building"></i> Производитель
@@ -100,7 +100,7 @@
             </div>
         </div>
 
-        <!-- Цвета -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-palette"></i> Цвета
@@ -138,7 +138,7 @@
             </div>
         </div>
 
-        <!-- Специфические характеристики -->
+
         <div class="card mb-4">
             <div class="card-header bg-primary text-white">
                 <i class="bi bi-tags"></i> Спецификация
@@ -161,7 +161,7 @@
             </div>
         </div>
 
-        <!-- Кнопки действий -->
+
         <div class="d-flex justify-content-between mt-4">
             <a asp-action="Index" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Назад к списку
@@ -196,7 +196,7 @@
     }
 
     <script>
-        // Фильтрация чекбоксов
+       
         function filterCheckboxes(containerId, searchText) {
             const container = document.getElementById(containerId);
             const checkboxes = container.querySelectorAll('.form-check');
@@ -211,7 +211,7 @@
             });
         }
 
-        // Переключение всех чекбоксов
+
         function toggleAllCheckboxes(containerId, checked) {
             const container = document.getElementById(containerId);
             const checkboxes = container.querySelectorAll('input[type="checkbox"]');
@@ -222,11 +222,11 @@
             });
         }
 
-        // Добавление правил валидации для динамических полей
+
         function addDynamicValidationRules(typeId) {
             var validator = $('#materialForm').validate();
 
-            // Удаляем предыдущие правила для динамических полей
+   
             validator.settings.rules.ZipperType = undefined;
             validator.settings.rules.ZipperLength = undefined;
             validator.settings.rules.Shape = undefined;
@@ -237,7 +237,7 @@
             validator.settings.rules.Density = undefined;
             validator.settings.rules.SelectedCompositions = undefined;
 
-            // Добавляем новые правила в зависимости от типа материала
+
             if (typeId === '11') { // Молния
                 validator.settings.rules.ZipperType = { required: true };
                 validator.settings.rules.ZipperLength = { required: true, min: 1 };
@@ -253,7 +253,7 @@
                 validator.settings.rules.SelectedCompositions = { required: true };
             }
 
-            // Обновляем сообщения об ошибках
+      
             validator.settings.messages = {
                 ZipperType: "Пожалуйста, выберите тип молнии",
                 ZipperLength: {
@@ -286,7 +286,7 @@
         }
 
         $(document).ready(function () {
-            // Динамическая загрузка полей при изменении типа материала
+
             $('#typeSelect').change(function () {
                 const typeId = $(this).val();
                 $('#dynamicFields').empty();
@@ -296,13 +296,13 @@
                 $.get(`/Materials/GetTypeFields?typeId=${typeId}`)
                     .done(function (data) {
                         $('#dynamicFields').html(data);
-                        // Переинициализация валидации
+                      
                         var form = $('#materialForm');
                         form.removeData('validator');
                         form.removeData('unobtrusiveValidation');
                         $.validator.unobtrusive.parse(form);
 
-                        // Добавляем правила валидации для динамических полей
+            
                         addDynamicValidationRules(typeId);
                     })
                     .fail(function () {
@@ -312,12 +312,11 @@
                     });
             });
 
-            // Инициализация при загрузке страницы
             if ($('#typeSelect').val()) {
                 $('#typeSelect').trigger('change');
             }
 
-            // Базовая валидация формы
+
             $('#materialForm').validate({
                 rules: {
                     MaterialName: { required: true, minlength: 2 },

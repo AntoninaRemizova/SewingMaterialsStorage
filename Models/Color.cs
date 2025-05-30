@@ -9,7 +9,6 @@ namespace SewingMaterialsStorage.Models
         [Required(ErrorMessage = "Укажите название цвета")]
         public string ColorName { get; set; }
 
-
         public List<MaterialColor> MaterialColors { get; set; } = new List<MaterialColor>();
     }
 }

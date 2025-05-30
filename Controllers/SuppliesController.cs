@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;  
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
+using SewingMaterialsStorage.Controllers;
 using SewingMaterialsStorage.Data;
 using SewingMaterialsStorage.Models;
 using SewingMaterialsStorage.ViewModels;
-using SewingMaterialsStorage.Controllers;
 
 public class SuppliesController : Controller
 {
@@ -15,7 +15,7 @@ public class SuppliesController : Controller
     {
         _context = context;
         _logger = logger;
-}
+    }
 
     [HttpGet]
     public async Task<decimal> GetMaterialPrice(int id)
@@ -113,12 +113,10 @@ public class SuppliesController : Controller
                 var supply = await _context.Supplies.FindAsync(viewModel.SupplyId);
                 if (supply == null) return NotFound();
 
-                // Явное обновление полей
                 supply.MaterialId = viewModel.MaterialId;
                 supply.Quantity = viewModel.Quantity;
 
-                // Явное преобразование даты
-                supply.SupplyDate = viewModel.SupplyDate.Date; // Берем только дату без времени
+                supply.SupplyDate = viewModel.SupplyDate.Date;
 
                 _context.Update(supply);
                 await _context.SaveChangesAsync();
@@ -139,8 +137,6 @@ public class SuppliesController : Controller
     {
         return _context.Supplies.Any(e => e.SupplyId == id);
     }
-
-
 
     // GET: Supplies/Delete/5
     public async Task<IActionResult> Delete(int? id)
